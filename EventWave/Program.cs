@@ -15,6 +15,7 @@ builder.Services.AddDbContext<ApplicationDBContext>(options=>
     var connectionString = builder.Configuration.GetConnectionString("cnx");
     options.UseSqlServer(connectionString);
 });
+builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
     options.Password.RequireNonAlphanumeric = false;
@@ -51,6 +52,8 @@ builder.Services.AddCors(options =>
           ));
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<ISpeakerRepository, SpeakerRepository>();
+builder.Services.AddScoped<ISpeakerService, SpeakerService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
