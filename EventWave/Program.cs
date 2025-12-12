@@ -15,6 +15,7 @@ builder.Services.AddDbContext<ApplicationDBContext>(options=>
     var connectionString = builder.Configuration.GetConnectionString("cnx");
     options.UseSqlServer(connectionString);
 });
+builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
     options.Password.RequireNonAlphanumeric = false;
