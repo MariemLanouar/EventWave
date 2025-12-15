@@ -15,8 +15,7 @@ builder.Services.AddDbContext<ApplicationDBContext>(options=>
     var connectionString = builder.Configuration.GetConnectionString("cnx");
     options.UseSqlServer(connectionString);
 });
-builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
-builder.Services.AddScoped<IWaitListRepository,WaitListRepository>();
+
 
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
@@ -63,11 +62,15 @@ builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<ISpeakerRepository, SpeakerRepository>();
 builder.Services.AddScoped<ISpeakerService, SpeakerService>();
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IRegistrationService, RegistrationService>();
 builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
+builder.Services.AddScoped<IWaitListRepository,WaitListRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

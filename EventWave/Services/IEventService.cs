@@ -14,5 +14,16 @@ namespace EventWave.Services
         Task<OrganizerStatsDTO?> GetOrganizerStatsAsync(string organizerId);
 
 
+        Task<List<Event>> GlobalSearchAsync(string keyword);
+        Task<List<Event>> AdvancedSearchAsync(
+            int? speakerId,
+            string category,
+            DateTime? start,
+            string location,
+            string description,
+            string title
+        );
+
+
     }
 }
