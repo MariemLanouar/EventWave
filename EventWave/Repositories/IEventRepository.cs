@@ -1,4 +1,5 @@
-﻿using EventWave.Models;
+﻿using EventWave.DTOs;
+using EventWave.Models;
 
 namespace EventWave.Repositories
 {
@@ -9,6 +10,8 @@ namespace EventWave.Repositories
         public Task<List<Event>> GetAllAsync();
         Task<Event> UpdateAsync(Event evt);
         Task<bool> DeleteEventAsync(int eventId);
+        Task<OrganizerStatsDTO?> GetOrganizerStatsAsync(string organizerId);
+
 
     }
 }
