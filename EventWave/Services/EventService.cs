@@ -1,5 +1,6 @@
 ﻿namespace EventWave.Services
 {
+    using EventWave.DTOs;
     using EventWave.Models;
     using EventWave.Repositories;
 
@@ -61,6 +62,12 @@
         {
             return await _eventRepository.DeleteEventAsync(id);
         }
+
+        public async Task<OrganizerStatsDTO?> GetOrganizerStatsAsync(string organizerId)
+        {
+            return await _eventRepository.GetOrganizerStatsAsync(organizerId);
+        }
+
 
 
     }

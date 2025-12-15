@@ -37,13 +37,20 @@ builder.Services.AddAuthentication(options =>
             {
                 o.TokenValidationParameters = new TokenValidationParameters
                 {
-                    IssuerSigningKey = new SymmetricSecurityKey
-
-    (System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecretKey"])),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
+
+                    ValidIssuer = builder.Configuration["JWT:issuer"],
+                    ValidAudience = builder.Configuration["JWT:audience"],
+
+                    IssuerSigningKey = new SymmetricSecurityKey(
+           System.Text.Encoding.UTF8.GetBytes(
+               builder.Configuration["JWT:SecretKey"]
+           )
+       ),
+
                     ClockSkew = TimeSpan.Zero
                 };
             }) ;
@@ -56,6 +63,12 @@ builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<ISpeakerRepository, SpeakerRepository>();
 builder.Services.AddScoped<ISpeakerService, SpeakerService>();
+builder.Services.AddScoped<IRegistrationService, RegistrationService>();
+builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -68,6 +81,17 @@ builder.Services.AddControllers()
 
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    await RoleSeeder.SeedAsync(roleManager);
+}
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    AdminSeeder.SeedAdmin(services).GetAwaiter().GetResult();
+}
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

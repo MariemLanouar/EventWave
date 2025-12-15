@@ -9,32 +9,29 @@ namespace EventWave.Controllers
     [ApiController]
     public class RegistrationController : ControllerBase
     {
-        private readonly IRegistrationRepository repository;
+        private readonly IRegistrationService _service;
 
-        public RegistrationController(IRegistrationRepository repository)
+        public RegistrationController(IRegistrationService service)
         {
-            this.repository = repository;
+            _service = service;
         }
 
-        // GET api/registration
         [HttpGet]
         public async Task<IActionResult> GetRegistrations()
         {
-            return Ok(await repository.GetRegistrations());
+            return Ok(await _service.GetRegistrationsAsync());
         }
 
-        // GET api/registration/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetRegistration(int id)
         {
-            var reg = await repository.GetRegistration(id);
+            var reg = await _service.GetRegistrationAsync(id);
             if (reg == null)
                 return NotFound("Registration not found");
 
             return Ok(reg);
         }
 
-        // POST api/registration
         [HttpPost]
         public async Task<IActionResult> AddRegistration(RegistrationDTO dto)
         {

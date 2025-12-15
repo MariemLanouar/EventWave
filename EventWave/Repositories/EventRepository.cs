@@ -1,4 +1,5 @@
 ﻿using EventWave.Data;
+using EventWave.DTOs;
 using EventWave.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -163,6 +164,51 @@ namespace EventWave.Repositories
             existingEvent.Status = EventStatus.Cancelled;
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<OrganizerStatsDTO?> GetOrganizerStatsAsync(string organizerId)
+        {
+            // Get organizer basic info
+            var organizer = await _context.Users
+                .Where(u => u.Id == organizerId)
+                .Select(u => new
+                {
+                    u.Id,
+                    u.FullName,
+                    u.Email
+                })
+                .FirstOrDefaultAsync();
+
+            if (organizer == null)
+                return null;
+
+            // Get events + ticket stats
+            var events = await _context.Events
+                .Where(e => e.OrganizerId == organizerId)
+                .Select(e => new EventSalesDTO
+                {
+                    EventId = e.Id,
+                    Title = e.Title,
+                    Capacity = e.Capacity,
+                    TicketsSold = e.Registrations.Count(),
+                    IsSoldOut = e.Registrations.Count() >= e.Capacity,
+                    SoldPercentage = e.Capacity == 0
+                        ? 0
+                        : Math.Round(
+                            (double)e.Registrations.Count() / e.Capacity * 100, 2
+                          )
+                })
+                .ToListAsync();
+
+            return new OrganizerStatsDTO
+            {
+                OrganizerId = organizer.Id,
+                FullName = organizer.FullName,
+                Email = organizer.Email,
+                TotalEvents = events.Count,
+                SoldOutEvents = events.Count(e => e.IsSoldOut),
+                Events = events
+            };
         }
 
 
