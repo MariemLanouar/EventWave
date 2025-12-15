@@ -45,6 +45,32 @@
         }
 
 
+        public async Task<List<Event>> GlobalSearchAsync(string keyword)
+        {
+            return await _eventRepository.GlobalSearchAsync(keyword);
+        }
+
+        public async Task<List<Event>> AdvancedSearchAsync(
+            int? speakerId,
+            string category,
+            DateTime? start,
+            string location,
+            string description,
+            string title)
+        {
+            return await _eventRepository.AdvancedSearchAsync(
+                speakerId,
+                category,
+                start,
+                location,
+                description,
+                title
+            );
+        }
+
+
+
+
     }
 
 }

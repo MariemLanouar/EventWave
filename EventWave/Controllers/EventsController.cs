@@ -82,6 +82,36 @@ namespace EventWave.Controllers
             return Ok(new { message = "Event cancelled successfully." });
         }
 
+        [HttpGet("search")]
+        public async Task<IActionResult> GlobalSearch(string q)
+        {
+            var results = await _eventService.GlobalSearchAsync(q);
+            return Ok(results);
+        }
+
+        [HttpGet("search/advanced")]
+        public async Task<IActionResult> AdvancedSearch(
+            int? speakerId,
+            string? category,
+            DateTime? start,
+            string? location,
+            string? description,
+            string? title)
+        {
+            var results = await _eventService.AdvancedSearchAsync(
+                speakerId,
+                category,
+                start,
+                location,
+                description,
+                title
+            );
+
+            return Ok(results);
+        }
+
+
+
 
     }
 }

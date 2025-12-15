@@ -1,6 +1,7 @@
 ﻿using EventWave.Data;
 using EventWave.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -82,6 +83,65 @@ namespace EventWave.Repositories
         }
 
 
+
+        public async Task<List<Event>> GlobalSearchAsync(string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return await _context.Events.ToListAsync();
+
+            keyword = keyword.ToLower();
+
+            return await _context.Events
+                .Include(e => e.Speaker)
+                .Where(e =>
+                    e.Title.ToLower().Contains(keyword) ||
+                    e.Description.ToLower().Contains(keyword) ||
+                    e.Category.ToLower().Contains(keyword) ||
+                    e.Location.ToLower().Contains(keyword) ||
+                    e.Start.ToString().ToLower().Contains(keyword) ||
+                    e.Speaker.Name.ToLower().Contains(keyword)
+
+                )
+                .OrderBy(e => e.Start)
+                .ToListAsync();
+        }
+
+
+
+        public async Task<List<Event>> AdvancedSearchAsync(
+            int? speakerId,
+            string? category,
+            DateTime? start,
+            string? location,
+            string? description,
+            string? title)
+        {
+            var query = _context.Events
+                .Include(e => e.Speaker)
+                .AsQueryable();
+
+            if (speakerId.HasValue)
+                query = query.Where(e => e.SpeakerId == speakerId.Value);
+
+            if (!string.IsNullOrWhiteSpace(category))
+                query = query.Where(e => e.Category.Contains(category));
+
+            if (start.HasValue)
+                query = query.Where(e => e.Start >= start.Value);
+
+            if (!string.IsNullOrWhiteSpace(location))
+                query = query.Where(e => e.Location.Contains(location));
+
+            if (!string.IsNullOrWhiteSpace(description))
+                query = query.Where(e => e.Description.Contains(description));
+
+            if (!string.IsNullOrWhiteSpace(title))
+                query = query.Where(e => e.Title.Contains(title));
+
+            return await query
+                .OrderBy(e => e.Start)
+                .ToListAsync();
+        }
 
 
     }

@@ -11,5 +11,16 @@ namespace EventWave.Services
         Task<Event> UpdateEventAsync(Event evt);
         Task<bool> CancelEventAsync(int id);
 
+        Task<List<Event>> GlobalSearchAsync(string keyword);
+        Task<List<Event>> AdvancedSearchAsync(
+            int? speakerId,
+            string category,
+            DateTime? start,
+            string location,
+            string description,
+            string title
+        );
+
+
     }
 }
