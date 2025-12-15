@@ -32,10 +32,20 @@ namespace EventWave.Controllers
                 End = evtdto.End,
                 Category = evtdto.Category,
                 Location = evtdto.Location,
-                Capacity = evtdto.Capacity,
+                
                 SpeakerId = evtdto.SpeakerId,
                 ImageUrl = evtdto.ImageUrl,
-                OrganizerId = evtdto.OrganizerId
+                OrganizerId = evtdto.OrganizerId,
+                CreatedAt = DateTime.Now,
+                Status = evtdto.Status,
+
+                TicketCapacities = evtdto.TicketCapacities.Select(tc => new TicketTypeCapacity
+                {
+                    TicketType = tc.TicketType,
+                    Capacity = tc.Capacity,
+                    TicketsRemaining = tc.Capacity,
+                    Price = tc.Price
+                }).ToList()
             };
 
             var created = await _eventService.CreateEventAsync(evt);

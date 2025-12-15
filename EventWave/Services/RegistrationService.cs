@@ -1,0 +1,42 @@
+﻿
+using EventWave.DTOs;
+using EventWave.Models;
+using EventWave.Repositories;
+using global::EventWave.DTOs;
+using global::EventWave.Models;
+using global::EventWave.Repositories;
+
+namespace EventWave.Services
+{
+    public class RegistrationService : IRegistrationService
+    {
+        private readonly IRegistrationRepository _repository;
+
+        public RegistrationService(IRegistrationRepository repository)
+        {
+            _repository = repository;
+        }
+
+        public async Task<object> GetRegistrationsAsync()
+        {
+            return await _repository.GetRegistrations();
+        }
+
+        public async Task<object?> GetRegistrationAsync(int id)
+        {
+            return await _repository.GetRegistration(id);
+        }
+
+        public async Task<Registration> AddRegistrationAsync(RegistrationDTO dto)
+        {
+            // Business logic can be added here later
+            // (capacity check, waitlist, duplicate registration, etc.)
+            return await _repository.AddRegistration(dto);
+        }
+
+        public async Task<bool> DeleteRegistrationAsync(int id)
+        {
+            return await _repository.DeleteRegistration(id);
+        }
+    }
+}

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using EventWave.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace EventWave.DTOs
 {
@@ -15,8 +16,10 @@ namespace EventWave.DTOs
         public string OrganizerId { get; set; }
         public string Category { get; set; }
         public string Location { get; set; }
-
+        public EventStatus Status { get; set; } = EventStatus.Draft;
         public int? Capacity { get; set; }
         public string ImageUrl { get; set; }
+        public List<TicketTypeCapacity> TicketCapacities { get; set; }
+
     }
 }

@@ -15,7 +15,8 @@ builder.Services.AddDbContext<ApplicationDBContext>(options=>
     var connectionString = builder.Configuration.GetConnectionString("cnx");
     options.UseSqlServer(connectionString);
 });
-builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
+
+
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
     options.Password.RequireNonAlphanumeric = false;
@@ -35,13 +36,20 @@ builder.Services.AddAuthentication(options =>
             {
                 o.TokenValidationParameters = new TokenValidationParameters
                 {
-                    IssuerSigningKey = new SymmetricSecurityKey
-
-    (System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecretKey"])),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
+
+                    ValidIssuer = builder.Configuration["JWT:issuer"],
+                    ValidAudience = builder.Configuration["JWT:audience"],
+
+                    IssuerSigningKey = new SymmetricSecurityKey(
+           System.Text.Encoding.UTF8.GetBytes(
+               builder.Configuration["JWT:SecretKey"]
+           )
+       ),
+
                     ClockSkew = TimeSpan.Zero
                 };
             }) ;
@@ -56,12 +64,37 @@ builder.Services.AddScoped<ISpeakerRepository, SpeakerRepository>();
 builder.Services.AddScoped<ISpeakerService, SpeakerService>();
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IRegistrationService, RegistrationService>();
+builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
+builder.Services.AddScoped<IWaitListRepository,WaitListRepository>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
+
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    await RoleSeeder.SeedAsync(roleManager);
+}
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    AdminSeeder.SeedAdmin(services).GetAwaiter().GetResult();
+}
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

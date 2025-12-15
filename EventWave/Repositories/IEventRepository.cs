@@ -1,4 +1,5 @@
-﻿using EventWave.Models;
+﻿using EventWave.DTOs;
+using EventWave.Models;
 
 namespace EventWave.Repositories
 {
@@ -18,6 +19,7 @@ namespace EventWave.Repositories
             string description,
             string title
         );
+        Task<OrganizerStatsDTO?> GetOrganizerStatsAsync(string organizerId);
 
 
     }
