@@ -14,9 +14,27 @@
 
         public async Task<Event> CreateEventAsync(Event evt)
         {
+
+            var duplicatedTypes = evt.TicketCapacities
+                .GroupBy(tc => tc.TicketType)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToList();
+
+            if (duplicatedTypes.Any())
+            {
+                throw new Exception(
+                    "Duplicate ticket types are not allowed"
+                );
+            }
             evt.CreatedAt = DateTime.Now;
-            evt.Status = "Draft";
-            evt.TicketsRemaining = evt.Capacity ?? 0;
+            evt.Status = EventStatus.Draft;
+
+            
+            foreach (var tc in evt.TicketCapacities)
+            {
+                tc.TicketsRemaining = tc.Capacity;
+            }
 
             return await _eventRepository.AddAsync(evt);
         }

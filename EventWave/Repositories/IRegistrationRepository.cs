@@ -6,10 +6,10 @@ namespace EventWave.Repositories
     public interface IRegistrationRepository
     {
 
-        Task<object> GetRegistrations();
+        Task<object?> GetRegistrations();
         Task<object?> GetRegistration(int id);
-        Task<Registration> AddRegistration(RegistrationDTO dto);
-        Task<bool> DeleteRegistration(int id);
+        Task<object> AddRegistration(RegistrationDTO dto);
+        Task<string> DeleteRegistration(int id);
 
     }
 }

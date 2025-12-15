@@ -20,16 +20,17 @@
 
         public string Category { get; set; }
         public string Location { get; set; }
-        public int? Capacity { get; set; }
-        public int TicketsRemaining { get; set; }
+        
 
-        public string Status { get; set; } = "Draft";  // Draft, Published, Cancelled
+        public EventStatus Status { get; set; } = EventStatus.Draft;
 
 
 
         public string ImageUrl { get; set; }
+
+        public List<TicketTypeCapacity> TicketCapacities { get; set; }
         public List<Registration> Registrations { get; set; }
-        //public List<WaitlistEntry> Waitlist { get; set; }
+        
         public List<Speaker> Speakers { get; set; }
     }
 }
