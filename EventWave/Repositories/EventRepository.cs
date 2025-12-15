@@ -41,28 +41,112 @@ namespace EventWave.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Event> UpdateAsync(Event evt)
+        public async Task<Event?> UpdateAsync(Event evt)
         {
-            var existingEvent = await _context.Events.FindAsync(evt.Id);
+            var existingEvent = await _context.Events
+                .Include(e => e.TicketCapacities)
+                .FirstOrDefaultAsync(e => e.Id == evt.Id);
+
             if (existingEvent == null)
                 return null;
 
-            // Update properties
-            existingEvent.Title = evt.Title;
-            existingEvent.Description = evt.Description;
-            existingEvent.Start = evt.Start;
-            existingEvent.End = evt.End;
-            existingEvent.Category = evt.Category;
-            existingEvent.Location = evt.Location;
-            existingEvent.Capacity = evt.Capacity;
-            existingEvent.TicketsRemaining = evt.TicketsRemaining;
-            existingEvent.Status = evt.Status;
-            existingEvent.ImageUrl = evt.ImageUrl;
-            existingEvent.SpeakerId = evt.SpeakerId;
+            bool change = false;
+
+            // 🔹 Mise à jour partielle de Event
+            if (evt.Title != null && evt.Title != existingEvent.Title)
+            {
+                existingEvent.Title = evt.Title;
+                change = true;
+            }
+
+            if (evt.Description != null && evt.Description != existingEvent.Description)
+            {
+                existingEvent.Description = evt.Description;
+                change = true;
+            }
+
+            if (evt.Start != default && evt.Start != existingEvent.Start)
+            {
+                existingEvent.Start = evt.Start;
+                change = true;
+            }
+
+            if (evt.End != default && evt.End != existingEvent.End)
+            {
+                existingEvent.End = evt.End;
+                change = true;
+            }
+
+            if (evt.Category != null && evt.Category != existingEvent.Category)
+            {
+                existingEvent.Category = evt.Category;
+                change = true;
+            }
+
+            if (evt.Location != null && evt.Location != existingEvent.Location)
+            {
+                existingEvent.Location = evt.Location;
+                change = true;
+            }
+
+            if (evt.ImageUrl != null && evt.ImageUrl != existingEvent.ImageUrl)
+            {
+                existingEvent.ImageUrl = evt.ImageUrl;
+                change = true;
+            }
+
+            if (evt.SpeakerId != 0 && evt.SpeakerId != existingEvent.SpeakerId)
+            {
+                existingEvent.SpeakerId = evt.SpeakerId;
+                change = true;
+            }
+
+            // 🔹 Mise à jour des TicketCapacities
+            if (evt.TicketCapacities != null)
+            {
+                foreach (var updatedTc in evt.TicketCapacities)
+                {
+                    var existingTc = existingEvent.TicketCapacities
+                        .FirstOrDefault(tc => tc.TicketType == updatedTc.TicketType);
+
+                    if (existingTc == null)
+                        throw new Exception($"TicketType {updatedTc.TicketType} inexistant pour cet événement");
+
+                    int sold = existingTc.Capacity - existingTc.TicketsRemaining;
+
+                    // 🔒 Validation CAPACITY
+                    if (updatedTc.Capacity != existingTc.Capacity)
+                    {
+                        if (updatedTc.Capacity < sold)
+                        {
+                            throw new Exception(
+                                $"Capacité invalide pour {updatedTc.TicketType}. " +
+                                $"Déjà vendus : {sold}, nouvelle capacité : {updatedTc.Capacity}"
+                            );
+                        }
+
+                        existingTc.Capacity = updatedTc.Capacity;
+                        existingTc.TicketsRemaining = updatedTc.Capacity - sold;
+                        change = true;
+                    }
+
+                    // 💰 Mise à jour du prix
+                    if (updatedTc.Price != existingTc.Price)
+                    {
+                        existingTc.Price = updatedTc.Price;
+                        change = true;
+                    }
+                }
+            }
+
+            // 🔹 Aucun changement → pas de SaveChanges
+            if (!change)
+                return existingEvent; // ou throw new Exception("Aucun changement détecté")
 
             await _context.SaveChangesAsync();
             return existingEvent;
         }
+
 
         public async Task<bool> DeleteEventAsync(int eventId)
         {
@@ -77,7 +161,7 @@ namespace EventWave.Repositories
             if (existingEvent.Registrations != null && existingEvent.Registrations.Count > 0)
                 return false;
 
-            existingEvent.Status = "Cancelled";
+            existingEvent.Status = EventStatus.Cancelled;
             await _context.SaveChangesAsync();
             return true;
         }
