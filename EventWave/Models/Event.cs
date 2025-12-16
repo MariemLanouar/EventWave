@@ -20,7 +20,7 @@
 
         public string Category { get; set; }
         public string Location { get; set; }
-        public int? Capacity { get; set; }
+        public int Capacity { get; set; }
         public int TicketsRemaining { get; set; }
 
         public string Status { get; set; } = "Draft";  // Draft, Published, Cancelled

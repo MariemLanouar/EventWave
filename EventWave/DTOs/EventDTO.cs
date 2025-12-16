@@ -16,7 +16,7 @@ namespace EventWave.DTOs
         public string Category { get; set; }
         public string Location { get; set; }
 
-        public int? Capacity { get; set; }
+        public int Capacity { get; set; }
         public string ImageUrl { get; set; }
     }
 }

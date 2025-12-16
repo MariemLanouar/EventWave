@@ -1,4 +1,5 @@
-﻿using EventWave.Models;
+﻿using EventWave.DTOs;
+using EventWave.Models;
 namespace EventWave.Services
 {
 
@@ -10,6 +11,8 @@ namespace EventWave.Services
         Task<Event> GetEventByIdAsync(int id);
         Task<Event> UpdateEventAsync(Event evt);
         Task<bool> CancelEventAsync(int id);
+        Task<OrganizerStatsDTO?> GetOrganizerStatsAsync(string organizerId);
+
 
     }
 }

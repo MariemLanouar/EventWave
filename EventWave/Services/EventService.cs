@@ -1,5 +1,6 @@
 ﻿namespace EventWave.Services
 {
+    using EventWave.DTOs;
     using EventWave.Models;
     using EventWave.Repositories;
 
@@ -16,7 +17,7 @@
         {
             evt.CreatedAt = DateTime.Now;
             evt.Status = "Draft";
-            evt.TicketsRemaining = evt.Capacity ?? 0;
+            evt.TicketsRemaining = evt.Capacity;
 
             return await _eventRepository.AddAsync(evt);
         }
@@ -43,6 +44,12 @@
         {
             return await _eventRepository.DeleteEventAsync(id);
         }
+
+        public async Task<OrganizerStatsDTO?> GetOrganizerStatsAsync(string organizerId)
+        {
+            return await _eventRepository.GetOrganizerStatsAsync(organizerId);
+        }
+
 
 
     }
