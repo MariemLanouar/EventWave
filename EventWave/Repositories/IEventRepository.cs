@@ -1,5 +1,6 @@
 ﻿using EventWave.DTOs;
 using EventWave.Models;
+using System.Threading.Tasks;
 
 namespace EventWave.Repositories
 {
@@ -12,13 +13,13 @@ namespace EventWave.Repositories
         Task<bool> DeleteEventAsync(int eventId);
         Task<List<Event>> GlobalSearchAsync(string keyword);
         Task<List<Event>> AdvancedSearchAsync(
-            int? speakerId,
-            string category,
-            DateTime? start,
-            string location,
-            string description,
-            string title
-        );
+        int? speakerId,
+        string? category,
+        DateTime? start,
+        string? venueName,
+        string? city,
+        string? description,
+        string? title);
         Task<OrganizerStatsDTO?> GetOrganizerStatsAsync(string organizerId);
 
 

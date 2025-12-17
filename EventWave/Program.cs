@@ -71,6 +71,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
 builder.Services.AddScoped<IWaitListRepository,WaitListRepository>();
+builder.Services.AddScoped<IWaitListService, WaitListService>();
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

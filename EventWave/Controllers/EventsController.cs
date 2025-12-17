@@ -19,27 +19,27 @@ namespace EventWave.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateEvent([FromBody] EventDTO evtdto)
+
+        public async Task<IActionResult> CreateEvent([FromBody] EventDTO dto)
         {
-            if (evtdto == null)
-                return BadRequest("Invalid data.");
+            if (dto == null)
+                return BadRequest("Invalid event data.");
 
             var evt = new Event
             {
-                Title = evtdto.Title,
-                Description = evtdto.Description,
-                Start = evtdto.Start,
-                End = evtdto.End,
-                Category = evtdto.Category,
-                Location = evtdto.Location,
-                
-                SpeakerId = evtdto.SpeakerId,
-                ImageUrl = evtdto.ImageUrl,
-                OrganizerId = evtdto.OrganizerId,
-                CreatedAt = DateTime.Now,
-                Status = evtdto.Status,
+                Title = dto.Title,
+                Description = dto.Description,
+                Start = dto.Start,
+                End = dto.End,
+                Category = dto.Category,
+                SpeakerId = dto.SpeakerId,
+                OrganizerId = dto.OrganizerId,
+                VenueId = dto.VenueId, 
+                ImageUrl = dto.ImageUrl,
+                Status = dto.Status,
+                CreatedAt = DateTime.UtcNow,
 
-                TicketCapacities = evtdto.TicketCapacities.Select(tc => new TicketTypeCapacity
+                TicketCapacities = dto.TicketCapacities.Select(tc => new TicketTypeCapacity
                 {
                     TicketType = tc.TicketType,
                     Capacity = tc.Capacity,
@@ -48,8 +48,8 @@ namespace EventWave.Controllers
                 }).ToList()
             };
 
-            var created = await _eventService.CreateEventAsync(evt);
-            return Ok(created);
+            var createdEvent = await _eventService.CreateEventAsync(evt);
+            return CreatedAtAction(nameof(GetById), new { id = createdEvent.Id }, createdEvent);
         }
         [HttpGet]
         public async Task<IActionResult> GetEvents()
@@ -101,18 +101,20 @@ namespace EventWave.Controllers
 
         [HttpGet("search/advanced")]
         public async Task<IActionResult> AdvancedSearch(
-            int? speakerId,
-            string? category,
-            DateTime? start,
-            string? location,
-            string? description,
-            string? title)
+    int? speakerId,
+    string? category,
+    DateTime? start,
+    string? venueName,
+    string? city,
+    string? description,
+    string? title)
         {
             var results = await _eventService.AdvancedSearchAsync(
                 speakerId,
                 category,
                 start,
-                location,
+                venueName,
+                city,
                 description,
                 title
             );

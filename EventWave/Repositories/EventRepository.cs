@@ -29,6 +29,7 @@ namespace EventWave.Repositories
         {
             return await _context.Events
                 .Include(e => e.Speaker)
+                .Include(e => e.Venue)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 
@@ -38,6 +39,7 @@ namespace EventWave.Repositories
                 .Include(e => e.Speaker)
                 .Include(e => e.Registrations)
                 .Include(e => e.Speakers)
+                .Include(e => e.Venue)
                 .OrderByDescending(e => e.Id)
                 .ToListAsync();
         }
@@ -84,11 +86,12 @@ namespace EventWave.Repositories
                 change = true;
             }
 
-            if (evt.Location != null && evt.Location != existingEvent.Location)
+            if (evt.VenueId != 0 && evt.VenueId != existingEvent.VenueId)
             {
-                existingEvent.Location = evt.Location;
+                existingEvent.VenueId = evt.VenueId;
                 change = true;
             }
+
 
             if (evt.ImageUrl != null && evt.ImageUrl != existingEvent.ImageUrl)
             {
@@ -169,7 +172,6 @@ namespace EventWave.Repositories
 
         public async Task<OrganizerStatsDTO?> GetOrganizerStatsAsync(string organizerId)
         {
-            // Get organizer basic info
             var organizer = await _context.Users
                 .Where(u => u.Id == organizerId)
                 .Select(u => new
@@ -183,21 +185,29 @@ namespace EventWave.Repositories
             if (organizer == null)
                 return null;
 
-            // Get events + ticket stats
             var events = await _context.Events
                 .Where(e => e.OrganizerId == organizerId)
                 .Select(e => new EventSalesDTO
                 {
                     EventId = e.Id,
                     Title = e.Title,
-                    Capacity = e.Capacity,
-                    TicketsSold = e.Registrations.Count(),
-                    IsSoldOut = e.Registrations.Count() >= e.Capacity,
-                    SoldPercentage = e.Capacity == 0
+
+                    Capacity = e.TicketCapacities.Sum(tc => tc.Capacity),
+
+                    TicketsSold = e.TicketCapacities.Sum(tc =>
+                        tc.Capacity - tc.TicketsRemaining
+                    ),
+
+                    IsSoldOut = e.TicketCapacities.All(tc => tc.TicketsRemaining == 0),
+
+                    SoldPercentage = e.TicketCapacities.Sum(tc => tc.Capacity) == 0
                         ? 0
                         : Math.Round(
-                            (double)e.Registrations.Count() / e.Capacity * 100, 2
-                          )
+                            (double)(
+                                e.TicketCapacities.Sum(tc => tc.Capacity - tc.TicketsRemaining)
+                            ) / e.TicketCapacities.Sum(tc => tc.Capacity) * 100,
+                            2
+                        )
                 })
                 .ToListAsync();
 
@@ -217,20 +227,23 @@ namespace EventWave.Repositories
         public async Task<List<Event>> GlobalSearchAsync(string keyword)
         {
             if (string.IsNullOrWhiteSpace(keyword))
-                return await _context.Events.ToListAsync();
+                return await _context.Events
+                    .Include(e => e.Venue)
+                    .Include(e => e.Speaker)
+                    .ToListAsync();
 
             keyword = keyword.ToLower();
 
             return await _context.Events
+                .Include(e => e.Venue)
                 .Include(e => e.Speaker)
                 .Where(e =>
                     e.Title.ToLower().Contains(keyword) ||
                     e.Description.ToLower().Contains(keyword) ||
                     e.Category.ToLower().Contains(keyword) ||
-                    e.Location.ToLower().Contains(keyword) ||
-                    e.Start.ToString().ToLower().Contains(keyword) ||
+                    e.Venue.Name.ToLower().Contains(keyword) ||
+                    e.Venue.City.ToLower().Contains(keyword) ||
                     e.Speaker.Name.ToLower().Contains(keyword)
-
                 )
                 .OrderBy(e => e.Start)
                 .ToListAsync();
@@ -238,16 +251,19 @@ namespace EventWave.Repositories
 
 
 
+
         public async Task<List<Event>> AdvancedSearchAsync(
-            int? speakerId,
-            string? category,
-            DateTime? start,
-            string? location,
-            string? description,
-            string? title)
+        int? speakerId,
+        string? category,
+        DateTime? start,
+        string? venueName,
+        string? city,
+        string? description,
+        string? title)
         {
             var query = _context.Events
                 .Include(e => e.Speaker)
+                .Include(e => e.Venue)
                 .AsQueryable();
 
             if (speakerId.HasValue)
@@ -259,8 +275,11 @@ namespace EventWave.Repositories
             if (start.HasValue)
                 query = query.Where(e => e.Start >= start.Value);
 
-            if (!string.IsNullOrWhiteSpace(location))
-                query = query.Where(e => e.Location.Contains(location));
+            if (!string.IsNullOrWhiteSpace(venueName))
+                query = query.Where(e => e.Venue.Name.Contains(venueName));
+
+            if (!string.IsNullOrWhiteSpace(city))
+                query = query.Where(e => e.Venue.City.Contains(city));
 
             if (!string.IsNullOrWhiteSpace(description))
                 query = query.Where(e => e.Description.Contains(description));
@@ -272,6 +291,7 @@ namespace EventWave.Repositories
                 .OrderBy(e => e.Start)
                 .ToListAsync();
         }
+
 
 
     }

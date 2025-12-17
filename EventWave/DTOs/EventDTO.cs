@@ -15,7 +15,7 @@ namespace EventWave.DTOs
 
         public string OrganizerId { get; set; }
         public string Category { get; set; }
-        public string Location { get; set; }
+        public int VenueId { get; set; }
         public EventStatus Status { get; set; } = EventStatus.Draft;
         public int? Capacity { get; set; }
         public string ImageUrl { get; set; }

@@ -17,44 +17,7 @@ namespace EventWave.Data
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<WaitList> WaitLists { get; set; }
         public DbSet<TicketTypeCapacity> TicketTypeCapacities { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<Ticket>()
-                .Property(t => t.Type)
-                .HasConversion<string>();
-
-            modelBuilder.Entity<Ticket>()
-                .HasOne(t => t.Registration)
-                .WithMany(r => r.Tickets)
-                .HasForeignKey(t => t.RegistrationId)
-                .OnDelete(DeleteBehavior.NoAction); // ⬅️ IMPORTANT
-
-            modelBuilder.Entity<TicketTypeCapacity>()
-                .Property(t => t.TicketType)
-                .HasConversion<string>(); // 👈 clé du problème
-           
-
-            modelBuilder.Entity<Registration>()
-                .Property(r => r.PaymentMethod)
-                .HasConversion<string>();
-
-            modelBuilder.Entity<Event>()
-                .Property(e => e.Status)
-                .HasConversion<string>();
-
-            modelBuilder.Entity<WaitList>()
-               .Property(w => w.TicketType)
-               .HasConversion<string>();
-
-            modelBuilder.Entity<WaitList>()
-                .Property(w => w.PaymentMethod)
-                .HasConversion<string>();
-
-        }
-
+        public DbSet<Venue> Venues { get; set; }
 
         public DbSet<Profile> Profiles { get; set; }
 
@@ -62,12 +25,48 @@ namespace EventWave.Data
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<Ticket>()
+                .Property(t => t.Type)
+                .HasConversion<string>();
+
+            builder.Entity<Ticket>()
+                .HasOne(t => t.Registration)
+                .WithMany(r => r.Tickets)
+                .HasForeignKey(t => t.RegistrationId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<TicketTypeCapacity>()
+                .Property(t => t.TicketType)
+                .HasConversion<string>();
+
+            builder.Entity<Registration>()
+                .Property(r => r.PaymentMethod)
+                .HasConversion<string>();
+
+            builder.Entity<Event>()
+                .Property(e => e.Status)
+                .HasConversion<string>();
+
+            builder.Entity<WaitList>()
+                .Property(w => w.TicketType)
+                .HasConversion<string>();
+
+            builder.Entity<WaitList>()
+                .Property(w => w.PaymentMethod)
+                .HasConversion<string>();
+
+            builder.Entity<Event>()
+                .HasOne(e => e.Venue)
+                .WithMany(v => v.Events)
+                .HasForeignKey(e => e.VenueId);
+
             builder.Entity<Profile>()
                 .HasOne(p => p.User)
                 .WithOne()
                 .HasForeignKey<Profile>(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
+
 
 
     }

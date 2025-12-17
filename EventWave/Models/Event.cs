@@ -19,8 +19,10 @@
         public string OrganizerId { get; set; }
 
         public string Category { get; set; }
-        public string Location { get; set; }
-        
+        public int VenueId { get; set; }
+        public Venue Venue { get; set; }
+
+
 
         public EventStatus Status { get; set; } = EventStatus.Draft;
 
