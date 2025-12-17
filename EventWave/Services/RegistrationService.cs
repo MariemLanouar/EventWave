@@ -27,14 +27,13 @@ namespace EventWave.Services
             return await _repository.GetRegistration(id);
         }
 
-        public async Task<Registration> AddRegistrationAsync(RegistrationDTO dto)
+        public async Task<object> AddRegistrationAsync(RegistrationDTO dto)
         {
-            // Business logic can be added here later
-            // (capacity check, waitlist, duplicate registration, etc.)
+            
             return await _repository.AddRegistration(dto);
         }
 
-        public async Task<bool> DeleteRegistrationAsync(int id)
+        public async Task<string> DeleteRegistrationAsync(int id)
         {
             return await _repository.DeleteRegistration(id);
         }

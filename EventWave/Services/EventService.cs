@@ -21,6 +21,8 @@
                 .Where(g => g.Count() > 1)
                 .Select(g => g.Key)
                 .ToList();
+            if (evt.VenueId == 0)
+                throw new Exception("Venue is required for an event");
 
             if (duplicatedTypes.Any())
             {
@@ -28,6 +30,13 @@
                     "Duplicate ticket types are not allowed"
                 );
             }
+            int totalTicketCapacity = evt.TicketCapacities.Sum(tc => tc.Capacity);
+
+            if (totalTicketCapacity <= 0)
+                throw new Exception("Event must have at least one ticket");
+
+            if (evt.Venue != null && totalTicketCapacity > evt.Venue.Capacity)
+                throw new Exception("Total ticket capacity exceeds venue capacity");
             evt.CreatedAt = DateTime.Now;
             evt.Status = EventStatus.Draft;
 
@@ -44,7 +53,8 @@
 
         public async Task<List<Event>> GetAllEventsAsync()
         {
-            return (List<Event>)await _eventRepository.GetAllAsync();
+            return await _eventRepository.GetAllAsync();
+
         }
 
 
@@ -76,22 +86,25 @@
         }
 
         public async Task<List<Event>> AdvancedSearchAsync(
-            int? speakerId,
-            string category,
-            DateTime? start,
-            string location,
-            string description,
-            string title)
+        int? speakerId,
+        string? category,
+         DateTime? start,
+         string? venueName,
+         string? city,
+         string? description,
+         string? title)
         {
             return await _eventRepository.AdvancedSearchAsync(
                 speakerId,
                 category,
                 start,
-                location,
+                venueName,
+                city,
                 description,
                 title
             );
         }
+
 
 
 

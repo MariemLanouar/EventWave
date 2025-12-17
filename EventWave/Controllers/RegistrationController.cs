@@ -1,6 +1,7 @@
 ﻿using EventWave.DTOs;
 using EventWave.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using EventWave.Services;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EventWave.Controllers
@@ -35,7 +36,7 @@ namespace EventWave.Controllers
         [HttpPost]
         public async Task<IActionResult> AddRegistration(RegistrationDTO dto)
         {
-            var newReg = await repository.AddRegistration(dto);
+            var newReg = await _service.AddRegistrationAsync(dto);
             dynamic reg = newReg;
             if (reg.Status == "WAITLIST")
                 return Ok(newReg);
@@ -55,12 +56,8 @@ namespace EventWave.Controllers
 
         public async Task<IActionResult> DeleteRegistration(int id)
         {
-            var message = await repository.DeleteRegistration(id);
-
-            if (message == "Cette réservation n’a pas été trouvée.")
-                return NotFound(message);
-
-            return Ok(new { message });
+            var result = await _service.DeleteRegistrationAsync(id);
+            return Ok(new { message = result });
         }
 
     }

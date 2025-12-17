@@ -16,13 +16,15 @@ namespace EventWave.Services
 
         Task<List<Event>> GlobalSearchAsync(string keyword);
         Task<List<Event>> AdvancedSearchAsync(
-            int? speakerId,
-            string category,
-            DateTime? start,
-            string location,
-            string description,
-            string title
-        );
+          int? speakerId,
+          string? category,
+          DateTime? start,
+          string? venueName,
+          string? city,
+          string? description,
+          string? title
+            );
+
 
 
     }

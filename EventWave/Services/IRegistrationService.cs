@@ -7,8 +7,8 @@ namespace EventWave.Services
     {
         Task<object> GetRegistrationsAsync();
         Task<object?> GetRegistrationAsync(int id);
-        Task<Registration> AddRegistrationAsync(RegistrationDTO dto);
-        Task<bool> DeleteRegistrationAsync(int id);
+        Task<object> AddRegistrationAsync(RegistrationDTO dto);
+        Task<string> DeleteRegistrationAsync(int id);
 
     }
 }
