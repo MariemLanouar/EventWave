@@ -11,31 +11,47 @@ namespace EventWave.Controllers
     {
         private readonly IUserService _userService;
         private readonly IAuthService _authService;
+        private readonly IProfileService _profileService;
 
-        public AuthController(IUserService userService, IAuthService authService)
+        public AuthController(IUserService userService, IAuthService authService, IProfileService profileService)
         {
             _userService = userService;
             _authService = authService;
+            _profileService = profileService;
         }
 
    
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDTO dto)
+        public async Task<IActionResult> Register(RegisterDTO dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var user = new User
             {
-                Email = dto.Email,
                 UserName = dto.Email,
+                Email = dto.Email,
                 FullName = dto.FullName
             };
 
-            var result = await _userService.AddUserAsync(user,  "Client",dto.Password);
-
-            if (result == null)
+            var createdUser = await _userService.AddUserAsync(user, "Client", dto.Password);
+            if (createdUser == null)
                 return BadRequest("Registration failed");
+
+            // ✅ Création automatique du Profile
+            var profile = new Profile
+            {
+                UserId = createdUser.Id,
+                Phone = dto.PhoneNumber,
+                City = dto.City,
+                Bio = null
+            };
+
+            await _profileService.CreateProfileInternalAsync(profile);
 
             return Ok("User registered successfully");
         }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO dto)

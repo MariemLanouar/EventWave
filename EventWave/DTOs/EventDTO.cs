@@ -20,6 +20,9 @@ namespace EventWave.DTOs
         public int? Capacity { get; set; }
         public string ImageUrl { get; set; }
         public List<TicketTypeCapacity> TicketCapacities { get; set; }
+        public List<Registration> Registrations { get; set; }
+
+        public List<Speaker> Speakers { get; set; }
 
     }
 }

@@ -13,6 +13,8 @@ namespace EventWave.DTOs
         //[StringLength ]
         //[DataType(DataType.Password)]
         public string Password { get; set; }
-    
+        public string PhoneNumber { get; set; }
+        public string City { get; set; }
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using EventWave.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 
 namespace EventWave.Data
 {
@@ -12,7 +13,7 @@ namespace EventWave.Data
 
         public DbSet<Event> Events { get; set; }
         public DbSet<Registration> Registrations { get; set; }
-       // public DbSet<WaitlistEntry> Waitlist { get; set; }
+        // public DbSet<WaitlistEntry> Waitlist { get; set; }
         public DbSet<Speaker> Speakers { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<WaitList> WaitLists { get; set; }
@@ -60,17 +61,18 @@ namespace EventWave.Data
                 .WithMany(v => v.Events)
                 .HasForeignKey(e => e.VenueId);
 
-            builder.Entity<Profile>()
-                .HasOne(p => p.User)
-                .WithOne()
+            builder.Entity<User>()
+                .HasOne(u => u.Profile)
+                .WithOne(p => p.User)
                 .HasForeignKey<Profile>(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+
+
+
         }
 
 
-
     }
-
-
 }
 
