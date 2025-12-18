@@ -58,6 +58,10 @@ builder.Services.AddCors(options =>
           policy => policy.AllowAnyOrigin()
           .AllowAnyHeader().AllowAnyMethod()
           ));
+
+
+
+
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<ISpeakerRepository, SpeakerRepository>();

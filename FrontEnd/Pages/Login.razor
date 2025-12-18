@@ -1,0 +1,31 @@
+﻿@page "/login"
+@inject FrontEnd.Services.AuthService AuthService
+@using FrontEnd.DTOs
+
+<h3>Login</h3>
+
+<input @bind="model.Email" placeholder="Email" />
+<input type="password" @bind="model.Password" placeholder="Password" />
+
+<button @onclick="login">Login</button>
+
+<p>@message</p>
+
+@code {
+    LoginDTO model = new();
+    string message;
+
+    private async Task login()
+    {
+        var token = await AuthService.LoginAsync(model);
+
+        if (token == null)
+        {
+            message = "Invalid credentials";
+            return;
+        }
+
+        // for now just confirm it works
+        message = "Login successful";
+    }
+}
