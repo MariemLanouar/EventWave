@@ -18,8 +18,9 @@ namespace EventWave.Controllers
             _authService = authService;
         }
 
+   
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDTO dto)
+        public async Task<IActionResult> Register([FromBody] RegisterDTO dto)
         {
             var user = new User
             {
@@ -28,25 +29,29 @@ namespace EventWave.Controllers
                 FullName = dto.FullName
             };
 
-            var success = await _userService.AddUserAsync(user, dto.Password, "Client");
-            if (success==null)
+            var result = await _userService.AddUserAsync(user,  "Client",dto.Password);
+
+            if (result == null)
                 return BadRequest("Registration failed");
 
             return Ok("User registered successfully");
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDTO dto)
+        public async Task<IActionResult> Login([FromBody] LoginDTO dto)
         {
             var user = await _userService.GetByEmailAsync(dto.Email);
+
             if (user == null)
                 return Unauthorized("Invalid credentials");
 
             var valid = await _userService.ValidatePasswordAsync(user, dto.Password);
+
             if (!valid)
                 return Unauthorized("Invalid credentials");
 
             var token = await _authService.GenerateToken(user);
+
             return Ok(new { token });
         }
     }

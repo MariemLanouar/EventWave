@@ -1,0 +1,24 @@
+﻿@page "/register"
+@inject FrontEnd.Services.AuthService AuthService
+@using FrontEnd.DTOs
+
+<h3>Register</h3>
+
+<input @bind="model.FullName" placeholder="Full name" />
+<input @bind="model.Email" placeholder="Email" />
+<input type="password" @bind="model.Password" placeholder="Password" />
+
+<button @onclick="register">Register</button>
+
+<p>@message</p>
+
+@code {
+    RegisterDTO model = new();
+    string message;
+
+    private async Task register()
+    {
+        var success = await AuthService.RegisterAsync(model);
+        message = success ? "Registered successfully" : "Registration failed";
+    }
+}

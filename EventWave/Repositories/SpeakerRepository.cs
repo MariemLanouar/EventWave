@@ -127,9 +127,9 @@ namespace EventWave.Repositories
                 {
                     EventId = e.Id,
                     Title = e.Title,
-                    Capacity = e.Capacity,
-                    TicketsSold = e.Registrations.Count(),
-                    IsSoldOut = e.Registrations.Count() >= e.Capacity
+                    Capacity = e.TicketCapacities.Sum(tc => tc.Capacity),
+                    TicketsSold = e.TicketCapacities.Sum(tc => tc.Capacity - tc.TicketsRemaining),
+                    IsSoldOut = e.TicketCapacities.Sum(tc => tc.TicketsRemaining) == 0
                 })
                 .ToListAsync();
 
