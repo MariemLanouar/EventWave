@@ -1,0 +1,133 @@
+@page "/checkout/{EventId:int}"
+@using FrontEnd.DTOs
+@using FrontEnd.Services
+@using FrontEnd.Models
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject EventService EventService
+@inject NavigationManager NavigationManager
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Checkout</h3>
+                </div>
+                <div class="card-body">
+                    @if (evt == null)
+                    {
+                        <p class="text-center">Loading event details...</p>
+                    }
+                    else
+                    {
+                        <div class="mb-4 border-bottom pb-3">
+                            <h4>@evt.Title</h4>
+                            <p class="text-muted mb-1">
+                                <i class="bi bi-calendar"></i> @evt.Start.ToString("f")
+                            </p>
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-geo-alt"></i> @evt.VenueName
+                            </p>
+                        </div>
+
+                        <EditForm Model="@registrationModel" OnValidSubmit="HandleRegistration">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Select Ticket Type</label>
+                                <InputSelect class="form-select" @bind-Value="registrationModel.TicketType">
+                                    @foreach (var type in Enum.GetValues<TicketType>())
+                                    {
+                                        <option value="@type">@type</option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Number of Tickets</label>
+                                <InputNumber class="form-control" @bind-Value="registrationModel.TicketCount" min="1" max="10" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Payment Method</label>
+                                <InputSelect class="form-select" @bind-Value="registrationModel.PaymentMethod">
+                                    @foreach (var method in Enum.GetValues<PaymentMethod>())
+                                    {
+                                        <option value="@method">@method</option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="alert alert-light border">
+                                <h5>Order Summary</h5>
+                                <div class="d-flex justify-content-between">
+                                    <span>Ticket Price (@registrationModel.TicketType)</span>
+                                    <span>@GetPrice(registrationModel.TicketType).ToString("C")</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Quantity</span>
+                                    <span>x @registrationModel.TicketCount</span>
+                                </div>
+                                <hr />
+                                <div class="d-flex justify-content-between fw-bold">
+                                    <span>Total</span>
+                                    <span>@((GetPrice(registrationModel.TicketType) * registrationModel.TicketCount).ToString("C"))</span>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg">Confirm & Pay</button>
+                                <a href="events/@EventId" class="btn btn-outline-secondary">Cancel</a>
+                            </div>
+                        </EditForm>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int EventId { get; set; }
+
+    private EventResponseDTO? evt;
+    private RegistrationDTO registrationModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        evt = await EventService.GetEventByIdAsync(EventId);
+        if (evt != null)
+        {
+            registrationModel = new RegistrationDTO
+            {
+                EventId = EventId,
+                TicketCount = 1,
+                TicketType = TicketType.Regular,
+                PaymentMethod = PaymentMethod.CreditCard
+            };
+        }
+    }
+
+    private decimal GetPrice(TicketType type)
+    {
+        if (evt?.TicketCapacities == null) return 0;
+        var ticket = evt.TicketCapacities.FirstOrDefault(t => t.TicketType == type);
+        return ticket?.Price ?? 0;
+    }
+
+    private async Task HandleRegistration()
+    {
+        var success = await EventService.RegisterEventAsync(registrationModel);
+        if (success)
+        {
+            NavigationManager.NavigateTo("/client/my-tickets");
+        }
+        else
+        {
+            // Handle error
+        }
+    }
+}

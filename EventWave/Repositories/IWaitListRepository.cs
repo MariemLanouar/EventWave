@@ -1,4 +1,4 @@
-﻿using EventWave.Models;
+using EventWave.Models;
 
 namespace EventWave.Repositories
 {
@@ -6,5 +6,7 @@ namespace EventWave.Repositories
     {
         Task<List<WaitList>> GetAll();
         Task<List<WaitList>> GetByEvent(int eventId);
+        Task<WaitList?> GetByIdAsync(int id);
+        Task<bool> DeleteAsync(int id);
     }
 }

@@ -1,0 +1,55 @@
+@page "/admin/venues"
+@using FrontEnd.DTOs
+@using FrontEnd.Services
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@inject EventService EventService
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Manage Venues</h3>
+        <a href="admin/add-venue" class="btn btn-primary">Add New Venue</a>
+    </div>
+
+    @if (venues == null)
+    {
+        <p>Loading...</p>
+    }
+    else if (!venues.Any())
+    {
+        <p>No venues found.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>City</th>
+                    <th>Capacity</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var v in venues)
+                {
+                    <tr>
+                        <td>@v.Name</td>
+                        <td>@v.Address</td>
+                        <td>@v.City</td>
+                        <td>@v.Capacity</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<VenueDTO>? venues;
+
+    protected override async Task OnInitializedAsync()
+    {
+        venues = await EventService.GetVenuesAsync();
+    }
+}

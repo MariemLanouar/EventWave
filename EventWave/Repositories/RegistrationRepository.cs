@@ -1,4 +1,4 @@
-﻿using EventWave.Data;
+using EventWave.Data;
 using EventWave.DTOs;
 using EventWave.Models;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +26,36 @@ namespace EventWave.Repositories
                     UserName = r.User.FullName,
                     UserEmail = r.User.Email,
                     EventTitle = r.Event.Title,
+                    r.TotalAmount,
+                    PaymentMethod = r.PaymentMethod.ToString(),
+                    r.RegisteredAt,
+                    Tickets = r.Tickets.Select(t => new
+                    {
+                        t.Id,
+                        t.Type,
+                        t.Price,
+                        t.TicketNumber
+                    }).ToList()
+                })
+                .ToListAsync();
+        }
+
+        public async Task<object?> GetRegistrationsByUser(string userId)
+        {
+            return await _context.Registrations
+                .Include(r => r.User)
+                .Include(r => r.Event)
+                .Include(r => r.Tickets)
+                .Where(r => r.UserId == userId)
+                .Select(r => new
+                {
+                    r.Id,
+                    r.EventId,
+                    EventTitle = r.Event.Title,
+                    EventStart = r.Event.Start,
+                    EventEnd = r.Event.End,
+                    EventImageUrl = r.Event.ImageUrl,
+                    EventVenue = r.Event.Venue.Name + ", " + r.Event.Venue.City,
                     r.TotalAmount,
                     PaymentMethod = r.PaymentMethod.ToString(),
                     r.RegisteredAt,

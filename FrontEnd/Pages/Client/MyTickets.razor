@@ -1,0 +1,89 @@
+@page "/client/my-tickets"
+@using FrontEnd.DTOs
+@using FrontEnd.Services
+@inject EventService EventService
+@inject NavigationManager NavigationManager
+@attribute [Authorize(Roles = "Client")]
+
+<PageTitle>My Tickets</PageTitle>
+
+<div class="container mt-4">
+    <h2>My Tickets</h2>
+    <p>Here are the events you have registered for.</p>
+
+    @if (registrations == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else if (!registrations.Any())
+    {
+        <div class="alert alert-info">
+            You haven't purchased any tickets yet. <a href="events">Browse Events</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var reg in registrations)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                @if (!string.IsNullOrEmpty(reg.EventImageUrl))
+                                {
+                                    <img src="@reg.EventImageUrl" class="img-fluid rounded-start h-100" style="object-fit: cover;" alt="@reg.EventTitle">
+                                }
+                                else
+                                {
+                                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center h-100">
+                                        <span>No Image</span>
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">@reg.EventTitle</h5>
+                                    <p class="card-text text-muted mb-1">
+                                        <small>@reg.EventStart.ToString("f")</small>
+                                    </p>
+                                    <p class="card-text mb-2">
+                                        <i class="bi bi-geo-alt"></i> @reg.EventVenue
+                                    </p>
+                                    
+                                    <hr/>
+                                    
+                                    <h6>Tickets (@reg.Tickets.Count)</h6>
+                                    <ul class="list-group list-group-flush small">
+                                        @foreach(var ticket in reg.Tickets)
+                                        {
+                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                                <span>
+                                                    <strong>@ticket.Type</strong> <br/>
+                                                    <span class="text-muted">#@ticket.TicketNumber</span>
+                                                </span>
+                                                <span>@ticket.Price.ToString("C")</span>
+                                            </li>
+                                        }
+                                    </ul>
+                                    <div class="mt-2 text-end">
+                                        <strong>Total: @reg.TotalAmount.ToString("C")</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<RegistrationResponseDTO>? registrations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        registrations = await EventService.GetMyRegistrationsAsync();
+    }
+}

@@ -1,4 +1,4 @@
-﻿using EventWave.Models;
+using EventWave.Models;
 
 namespace EventWave.Services
 {
@@ -6,5 +6,7 @@ namespace EventWave.Services
     {
         Task<List<WaitList>> GetAllAsync();
         Task<List<WaitList>> GetByEventAsync(int eventId);
+        Task<bool> ApproveAsync(int id);
+        Task<bool> RejectAsync(int id);
     }
 }

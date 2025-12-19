@@ -1,0 +1,64 @@
+@page "/organizer/add-speaker"
+@using FrontEnd.DTOs
+@using FrontEnd.Services
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Organizer")]
+@inject EventService EventService
+@inject NavigationManager NavigationManager
+
+<div class="container mt-4">
+    <h3>Add New Speaker</h3>
+    <div class="row">
+        <div class="col-md-6">
+            <EditForm Model="@speaker" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <InputText class="form-control" @bind-Value="speaker.Name" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Expertise</label>
+                    <InputText class="form-control" @bind-Value="speaker.Expertise" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Bio</label>
+                    <InputTextArea class="form-control" @bind-Value="speaker.Bio" />
+                </div>
+
+                 <div class="mb-3">
+                    <label class="form-label">Contact</label>
+                    <InputText class="form-control" @bind-Value="speaker.Contact" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Image URL</label>
+                    <InputText class="form-control" @bind-Value="speaker.ImageUrl" />
+                </div>
+
+                <button type="submit" class="btn btn-primary">Add Speaker</button>
+                <a href="organizer/dashboard" class="btn btn-secondary">Cancel</a>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    private SpeakerDTO speaker = new();
+
+    private async Task HandleSubmit()
+    {
+        var success = await EventService.AddSpeakerAsync(speaker);
+        if (success)
+        {
+            NavigationManager.NavigateTo("organizer/dashboard");
+        }
+        else
+        {
+            // Handle error
+        }
+    }
+}

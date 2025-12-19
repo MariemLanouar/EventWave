@@ -1,4 +1,4 @@
-﻿namespace EventWave.Services
+namespace EventWave.Services
 {
     using EventWave.DTOs;
     using EventWave.Models;
@@ -51,20 +51,34 @@
 
        
 
-        public async Task<List<Event>> GetAllEventsAsync()
+        public async Task<IEnumerable<Event>> GetAllEventsAsync()
         {
             return await _eventRepository.GetAllAsync();
-
         }
 
+        public async Task<IEnumerable<Event>> GetEventsByOrganizerAsync(string organizerId)
+        {
+            return await _eventRepository.GetByOrganizerAsync(organizerId);
+        }
 
-        public async Task<Event> GetEventByIdAsync(int id)
+        public async Task<Event?> GetEventByIdAsync(int id)
         {
             return await _eventRepository.GetByIdAsync(id);
         }
 
-        public async Task<Event> UpdateEventAsync(Event evt)
+        public async Task<Event?> UpdateEventAsync(int id, UpdateEventDTO dto)
         {
+            var evt = await _eventRepository.GetByIdAsync(id);
+            if (evt == null) return null;
+
+            evt.Title = dto.Title;
+            evt.Description = dto.Description;
+            evt.Start = dto.Start;
+            evt.End = dto.End;
+            evt.Category = dto.Category;
+            evt.VenueId = dto.VenueId;
+            evt.ImageUrl = dto.ImageUrl;
+
             return await _eventRepository.UpdateAsync(evt);
         }
 

@@ -1,0 +1,93 @@
+@page "/events"
+@using FrontEnd.DTOs
+@using FrontEnd.Services
+@inject EventService EventService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Events</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Upcoming Events</h1>
+    <div class="input-group w-50">
+        <input type="text" class="form-control" placeholder="Search events..." @bind="searchQuery" @bind:event="oninput" @onkeyup="HandleSearch" />
+        <button class="btn btn-outline-secondary" type="button" @onclick="ExecuteSearch">Search</button>
+    </div>
+</div>
+
+@if (events == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (!events.Any())
+{
+    <p>No events found.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var evt in events)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    @if (!string.IsNullOrEmpty(evt.ImageUrl))
+                    {
+                        <img src="@evt.ImageUrl" class="card-img-top" alt="@evt.Title" style="height: 200px; object-fit: cover;">
+                    }
+                    else
+                    {
+                        <div class="card-img-top bg-secondary text-white d-flex justify-content-center align-items-center" style="height: 200px;">
+                            <span>No Image</span>
+                        </div>
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@evt.Title</h5>
+                        <p class="card-text text-truncate">@evt.Description</p>
+                        <p class="card-text">
+                            <small class="text-muted">@evt.Start.ToString("f")</small>
+                        </p>
+                        <p class="card-text">
+                            <span class="badge bg-primary">@evt.Category</span>
+                            <span class="badge bg-secondary">@evt.Status</span>
+                        </p>
+                        <a href="events/@evt.Id" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<EventResponseDTO>? events;
+    private string searchQuery = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEvents();
+    }
+
+    private async Task LoadEvents()
+    {
+        events = await EventService.GetEventsAsync();
+    }
+
+    private async Task HandleSearch(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await ExecuteSearch();
+        }
+    }
+
+    private async Task ExecuteSearch()
+    {
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            await LoadEvents();
+        }
+        else
+        {
+            events = await EventService.SearchEventsAsync(searchQuery);
+        }
+    }
+}

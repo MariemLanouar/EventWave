@@ -1,4 +1,4 @@
-﻿using EventWave.Data;
+using EventWave.Data;
 using EventWave.DTOs;
 using EventWave.Models;
 using Microsoft.EntityFrameworkCore;
@@ -25,18 +25,18 @@ namespace EventWave.Repositories
             return evt;
         }
 
-        public async Task<Event> GetByIdAsync(int id)
+        public async Task<Event?> GetByIdAsync(int id)
         {
             return await _context.Events
                 .Include(e => e.Speaker)
                 .Include(e => e.Venue)
-                .Include(e => e.TicketCapacities)        // Ajoutez ceci
-                .Include(e => e.Registrations)           // Ajoutez ceci
+                .Include(e => e.TicketCapacities)
+                .Include(e => e.Registrations)
                  .Include(e => e.Speakers)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 
-        public async Task<List<Event>> GetAllAsync()
+        public async Task<IEnumerable<Event>> GetAllAsync()
         {
             return await _context.Events
                 .Include(e => e.Speaker)
@@ -44,6 +44,18 @@ namespace EventWave.Repositories
                 .Include(e => e.Speakers)
                 .Include(e => e.Venue)
                 .OrderByDescending(e => e.Id)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Event>> GetByOrganizerAsync(string organizerId)
+        {
+            return await _context.Events
+                .Include(e => e.Speaker)
+                .Include(e => e.Registrations)
+                .Include(e => e.Speakers)
+                .Include(e => e.Venue)
+                .Where(e => e.OrganizerId == organizerId)
+                .OrderByDescending(e => e.CreatedAt)
                 .ToListAsync();
         }
 

@@ -1,0 +1,128 @@
+@page "/organizer/dashboard"
+@using FrontEnd.DTOs
+@using FrontEnd.Services
+@inject EventService EventService
+@inject NavigationManager NavigationManager
+@attribute [Authorize(Roles = "Organizer")]
+
+<PageTitle>Organizer Dashboard</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Organizer Dashboard</h2>
+        <div>
+            <a href="create-event" class="btn btn-primary me-2">+ Create Event</a>
+            <a href="organizer/add-speaker" class="btn btn-outline-primary">+ Add Speaker</a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-light">
+                <div class="card-body text-center">
+                    <h3>@(myEvents?.Count ?? 0)</h3>
+                    <p class="mb-0">Total Events</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3>@(myEvents?.Count(e => e.Status == FrontEnd.Models.EventStatus.Published) ?? 0)</h3>
+                    <p class="mb-0">Published</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body text-center">
+                    <h3>@(myEvents?.Count(e => e.Status == FrontEnd.Models.EventStatus.Draft) ?? 0)</h3>
+                    <p class="mb-0">Drafts</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <h3>@(myEvents?.Count(e => e.Status == FrontEnd.Models.EventStatus.Cancelled) ?? 0)</h3>
+                    <p class="mb-0">Cancelled</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3>My Events</h3>
+    @if (myEvents == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else if (!myEvents.Any())
+    {
+        <div class="alert alert-info">
+            You haven't created any events yet.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Event</th>
+                        <th>Date</th>
+                        <th>Venue</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var evt in myEvents)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    @if (!string.IsNullOrEmpty(evt.ImageUrl))
+                                    {
+                                        <img src="@evt.ImageUrl" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;" />
+                                    }
+                                    <strong>@evt.Title</strong>
+                                </div>
+                            </td>
+                            <td>@evt.Start.ToString("MMM dd, HH:mm")</td>
+                            <td>@evt.VenueName</td>
+                            <td><span class="badge bg-secondary">@evt.Category</span></td>
+                            <td>
+                                @if (evt.Status.ToString() == "Published")
+                                {
+                                    <span class="badge bg-success">Published</span>
+                                }
+                                else if (evt.Status.ToString() == "Draft")
+                                {
+                                    <span class="badge bg-warning text-dark">Draft</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">@evt.Status</span>
+                                }
+                            </td>
+                            <td>
+                                <a href="events/@evt.Id" class="btn btn-sm btn-outline-primary">View</a>
+                                <!-- Add Edit/Cancel buttons later -->
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<EventResponseDTO>? myEvents;
+
+    protected override async Task OnInitializedAsync()
+    {
+        myEvents = await EventService.GetMyEventsAsync();
+    }
+}

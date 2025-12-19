@@ -1,4 +1,4 @@
-﻿using EventWave.DTOs;
+using EventWave.DTOs;
 using EventWave.Models;
 using EventWave.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +41,14 @@ namespace EventWave.Controllers
         public async Task<IActionResult> GetSpeakers()
         {
             var speakers = await speakerService.GetAllSpeakersAsync();
+            return Ok(speakers);
+        }
+
+        [HttpGet("all")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin,Organizer")]
+        public async Task<IActionResult> GetAllSpeakersIncludingPending()
+        {
+            var speakers = await speakerService.GetAllSpeakersIncludingPendingAsync();
             return Ok(speakers);
         }
 

@@ -1,0 +1,93 @@
+@page "/events/{Id:int}"
+@using FrontEnd.DTOs
+@using FrontEnd.Services
+@using FrontEnd.Models
+@inject EventService EventService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+
+<PageTitle>Event Details</PageTitle>
+
+@if (evt == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8">
+                <h1>@evt.Title</h1>
+                <p class="text-muted">@evt.Start.ToString("f") - @evt.End.ToString("f")</p>
+                
+                @if (!string.IsNullOrEmpty(evt.ImageUrl))
+                {
+                    <img src="@evt.ImageUrl" class="img-fluid mb-3 rounded" alt="@evt.Title" />
+                }
+
+                <h3>Description</h3>
+                <p>@evt.Description</p>
+
+                <h3>Details</h3>
+                <ul class="list-unstyled">
+                    <li><strong>Category:</strong> @evt.Category</li>
+                    <li><strong>Venue:</strong> @evt.VenueName</li>
+                    <li><strong>Speaker:</strong> @evt.SpeakerName</li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        Tickets
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        @if (evt.TicketCapacities != null && evt.TicketCapacities.Any())
+                        {
+                            foreach (var ticket in evt.TicketCapacities)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>
+                                        <strong>@ticket.TicketType</strong><br/>
+                                        <small class="text-muted">@ticket.Capacity tickets available</small>
+                                    </span>
+                                    <span class="badge bg-success rounded-pill">@ticket.Price.ToString("C")</span>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="list-group-item">No tickets available info.</li>
+                        }
+                    </ul>
+                    <div class="card-body">
+                         <AuthorizeView>
+                            <Authorized>
+                                <a href="checkout/@evt.Id" class="btn btn-primary w-100">Register Now</a>
+                            </Authorized>
+                            <NotAuthorized>
+                                <a href="login" class="btn btn-secondary w-100">Login to Register</a>
+                            </NotAuthorized>
+                        </AuthorizeView>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private EventResponseDTO? evt;
+
+    protected override async Task OnInitializedAsync()
+    {
+        evt = await EventService.GetEventByIdAsync(Id);
+        if (evt == null)
+        {
+            // Handle not found
+        }
+    }
+}

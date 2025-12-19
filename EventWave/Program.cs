@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using EventWave.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -89,6 +90,7 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
 
 
@@ -106,6 +108,8 @@ using (var scope = app.Services.CreateScope())
 
 
 // Configure the HTTP request pipeline.
+app.UseMiddleware<GlobalExceptionHandler>();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -113,10 +117,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseRouting();
-
 app.UseCors("AllowAll");
-app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
 

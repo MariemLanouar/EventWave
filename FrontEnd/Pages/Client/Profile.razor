@@ -1,0 +1,157 @@
+@page "/client/profile"
+@using FrontEnd.DTOs
+@using FrontEnd.Services
+@attribute [Authorize]
+@inject ProfileService ProfileService
+@inject NavigationManager NavigationManager
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">My Profile</h3>
+                </div>
+                <div class="card-body">
+                    @if (isLoading)
+                    {
+                        <p class="text-center">Loading profile...</p>
+                    }
+                    else if (profile == null)
+                    {
+                         <div class="alert alert-warning">
+                            Profile not found. Please create one.
+                        </div>
+                        <EditForm Model="@newProfile" OnValidSubmit="CreateProfile">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <div class="mb-3">
+                                <label class="form-label">Phone</label>
+                                <InputText class="form-control" @bind-Value="newProfile.Phone" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">City</label>
+                                <InputText class="form-control" @bind-Value="newProfile.City" />
+                            </div>
+                             <div class="mb-3">
+                                <label class="form-label">Bio</label>
+                                <InputTextArea class="form-control" @bind-Value="newProfile.Bio" />
+                            </div>
+
+                            <button type="submit" class="btn btn-success">Create Profile</button>
+                        </EditForm>
+                    }
+                    else
+                    {
+                        @if (isEditing)
+                        {
+                            <EditForm Model="@profile" OnValidSubmit="UpdateProfile">
+                                <DataAnnotationsValidator />
+                                <ValidationSummary />
+
+                                <div class="mb-3">
+                                    <label class="form-label">Phone</label>
+                                    <InputText class="form-control" @bind-Value="profile.Phone" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">City</label>
+                                    <InputText class="form-control" @bind-Value="profile.City" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Bio</label>
+                                    <InputTextArea class="form-control" @bind-Value="profile.Bio" />
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    <button type="button" class="btn btn-secondary" @onclick="ToggleEdit">Cancel</button>
+                                </div>
+                            </EditForm>
+                        }
+                        else
+                        {
+                            <div class="mb-3 row">
+                                <label class="col-sm-3 col-form-label fw-bold">Full Name</label>
+                                <div class="col-sm-9">
+                                    <input type="text" readonly class="form-control-plaintext" value="@profile.FullName">
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-sm-3 col-form-label fw-bold">Email</label>
+                                <div class="col-sm-9">
+                                    <input type="text" readonly class="form-control-plaintext" value="@profile.Email">
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-sm-3 col-form-label fw-bold">Phone</label>
+                                <div class="col-sm-9">
+                                    <input type="text" readonly class="form-control-plaintext" value="@profile.Phone">
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-sm-3 col-form-label fw-bold">City</label>
+                                <div class="col-sm-9">
+                                    <input type="text" readonly class="form-control-plaintext" value="@profile.City">
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-sm-3 col-form-label fw-bold">Bio</label>
+                                <div class="col-sm-9">
+                                    <p class="form-control-plaintext">@profile.Bio</p>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-outline-primary" @onclick="ToggleEdit">Edit Profile</button>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private ProfileDTO? profile;
+    private ProfileDTO newProfile = new();
+    private bool isLoading = true;
+    private bool isEditing = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProfile();
+    }
+
+    private async Task LoadProfile()
+    {
+        isLoading = true;
+        profile = await ProfileService.GetMyProfileAsync();
+        isLoading = false;
+    }
+
+    private void ToggleEdit()
+    {
+        isEditing = !isEditing;
+    }
+
+    private async Task CreateProfile()
+    {
+        var success = await ProfileService.CreateProfileAsync(newProfile);
+        if (success)
+        {
+            await LoadProfile();
+        }
+    }
+
+    private async Task UpdateProfile()
+    {
+        if (profile != null)
+        {
+            var success = await ProfileService.UpdateProfileAsync(profile);
+            if (success)
+            {
+                isEditing = false;
+            }
+        }
+    }
+}

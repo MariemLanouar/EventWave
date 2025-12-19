@@ -1,0 +1,66 @@
+@page "/profile"
+@inject FrontEnd.Services.EventService EventService
+@inject NavigationManager NavigationManager
+@using FrontEnd.DTOs
+
+<PageTitle>My Profile</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>My Events</h2>
+        <a href="create-event" class="btn btn-primary">Create New Event</a>
+    </div>
+
+    @if (myEvents == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else if (!myEvents.Any())
+    {
+        <div class="alert alert-info">
+            You haven't created any events yet.
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var evt in myEvents)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        @if (!string.IsNullOrEmpty(evt.ImageUrl))
+                        {
+                            <img src="@evt.ImageUrl" class="card-img-top" alt="@evt.Title" style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <span>No Image</span>
+                            </div>
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@evt.Title</h5>
+                            <p class="card-text text-muted">
+                                <small>@evt.Start.ToString("MMM dd, yyyy HH:mm")</small>
+                            </p>
+                            <p class="card-text">@evt.VenueName</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-info text-dark">@evt.Category</span>
+                                <a href="/event/@evt.Id" class="btn btn-outline-primary btn-sm">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<EventResponseDTO>? myEvents;
+
+    protected override async Task OnInitializedAsync()
+    {
+        myEvents = await EventService.GetMyEventsAsync();
+    }
+}

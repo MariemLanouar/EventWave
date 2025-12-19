@@ -1,4 +1,4 @@
-﻿using EventWave.Data;
+using EventWave.Data;
 using EventWave.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,8 +25,27 @@ namespace EventWave.Repositories
         {
             return await _context.WaitLists
                 .Where(w => w.EventId == eventId)
+                .Include(w => w.User)
                 .OrderBy(w => w.CreatedAt) // FIFO
                 .ToListAsync();
+        }
+
+        public async Task<WaitList?> GetByIdAsync(int id)
+        {
+            return await _context.WaitLists
+                .Include(w => w.User)
+                .Include(w => w.Event)
+                .FirstOrDefaultAsync(w => w.Id == id);
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var entity = await _context.WaitLists.FindAsync(id);
+            if (entity == null) return false;
+
+            _context.WaitLists.Remove(entity);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

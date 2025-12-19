@@ -1,0 +1,107 @@
+@page "/admin/organizers"
+@using FrontEnd.DTOs
+@using FrontEnd.Services
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@inject AdminService AdminService
+
+<div class="container mt-4">
+    <h3>Manage Organizers</h3>
+
+    <div class="card mb-4">
+        <div class="card-header">Add New Organizer</div>
+        <div class="card-body">
+            <EditForm Model="@newOrganizer" OnValidSubmit="HandleAddOrganizer">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="row">
+                    <div class="col-md-3">
+                        <InputText class="form-control" placeholder="Full Name" @bind-Value="newOrganizer.FullName" />
+                    </div>
+                    <div class="col-md-3">
+                        <InputText class="form-control" placeholder="Email" @bind-Value="newOrganizer.Email" />
+                    </div>
+                    <div class="col-md-3">
+                        <InputText class="form-control" type="password" placeholder="Password" @bind-Value="newOrganizer.Password" />
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">Add Organizer</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+
+    <h4>All Organizers</h4>
+    @if (organizers == null)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var org in organizers)
+                {
+                    <tr>
+                        <td>@org.FullName</td>
+                        <td>@org.Email</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" @onclick="@(() => DeleteOrganizer(org.Id))">Remove</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<UserDTO>? organizers;
+    private RegisterDTO newOrganizer = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrganizers();
+    }
+
+    private async Task LoadOrganizers()
+    {
+        organizers = await AdminService.GetOrganizersAsync();
+    }
+
+    private async Task HandleAddOrganizer()
+    {
+        // Need to add required fields like ConfirmPassword/Username/etc if RegisterDTO requires them
+        newOrganizer.ConfirmPassword = newOrganizer.Password; 
+        newOrganizer.PhoneNumber = "N/A";
+        newOrganizer.City = "N/A";
+        
+        var success = await AdminService.AddOrganizerAsync(newOrganizer);
+        if (success)
+        {
+            newOrganizer = new();
+            await LoadOrganizers();
+        }
+        else
+        {
+            // Show error
+        }
+    }
+
+    private async Task DeleteOrganizer(string id)
+    {
+        var success = await AdminService.DeleteOrganizerAsync(id);
+        if (success)
+        {
+            await LoadOrganizers();
+        }
+    }
+}

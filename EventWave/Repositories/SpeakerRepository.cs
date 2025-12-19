@@ -1,4 +1,4 @@
-﻿using EventWave.Data;
+using EventWave.Data;
 using EventWave.DTOs;
 using EventWave.Models;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +22,14 @@ namespace EventWave.Repositories
         }
 
         public async Task<List<Speaker>> GetAllAsync()
+        {
+            return await context.Speakers
+                .Where(s => s.IsApproved)
+                .OrderByDescending(s => s.Id)
+                .ToListAsync();
+        }
+
+        public async Task<List<Speaker>> GetAllIncludingPendingAsync()
         {
             return await context.Speakers
                 .OrderByDescending(s => s.Id)

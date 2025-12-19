@@ -1,0 +1,52 @@
+@page "/organizer/all-events"
+@using FrontEnd.DTOs
+@using FrontEnd.Services
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Organizer")]
+@inject EventService EventService
+
+<div class="container mt-4">
+    <h3>All My Events</h3>
+    
+    @if (events == null)
+    {
+        <p>Loading...</p>
+    }
+    else if (!events.Any())
+    {
+         <div class="alert alert-info">
+            You haven't created any events yet. <a href="create-event">Create one now</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var evt in events)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        @if (!string.IsNullOrEmpty(evt.ImageUrl))
+                        {
+                            <img src="@evt.ImageUrl" class="card-img-top" alt="@evt.Title" style="height: 200px; object-fit: cover;">
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@evt.Title</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">@evt.Start.ToString("g")</h6>
+                            <p class="card-text text-truncate">@evt.Description</p>
+                            <a href="events/@evt.Id" class="btn btn-outline-primary btn-sm">View</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<EventResponseDTO>? events;
+
+    protected override async Task OnInitializedAsync()
+    {
+        events = await EventService.GetMyEventsAsync();
+    }
+}

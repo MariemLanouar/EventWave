@@ -1,0 +1,114 @@
+@page "/admin/speakers"
+@using FrontEnd.DTOs
+@using FrontEnd.Services
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@inject AdminService AdminService
+@inject EventService EventService
+
+<div class="container mt-4">
+    <h3>Manage Speakers</h3>
+
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+            <a class="nav-link @(activeTab == "all" ? "active" : "")" @onclick="@(() => activeTab = "all")" style="cursor:pointer">All Speakers</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(activeTab == "pending" ? "active" : "")" @onclick="@(() => activeTab = "pending")" style="cursor:pointer">Pending Approval</a>
+        </li>
+    </ul>
+
+    @if (activeTab == "all")
+    {
+        @if (allSpeakers == null)
+        {
+            <p>Loading...</p>
+        }
+        else
+        {
+            <div class="row">
+                @foreach (var sp in allSpeakers)
+                {
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">@sp.Name</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">@sp.Expertise</h6>
+                                <p class="card-text">@sp.Bio</p>
+                                @if (sp.IsApproved)
+                                {
+                                    <span class="badge bg-success">Approved</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+    else if (activeTab == "pending")
+    {
+        @if (pendingSpeakers == null)
+        {
+            <p>Loading...</p>
+        }
+        else if (!pendingSpeakers.Any())
+        {
+             <p>No pending speakers.</p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Expertise</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var sp in pendingSpeakers)
+                    {
+                        <tr>
+                            <td>@sp.Name</td>
+                            <td>@sp.Expertise</td>
+                            <td>
+                                <button class="btn btn-success btn-sm" @onclick="@(() => ApproveSpeaker(sp.Id))">Approve</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    }
+</div>
+
+@code {
+    private string activeTab = "all";
+    private List<SpeakerDTO>? allSpeakers;
+    private List<SpeakerDTO>? pendingSpeakers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        allSpeakers = await EventService.GetAllSpeakersIncludingPendingAsync();
+        pendingSpeakers = await AdminService.GetPendingSpeakersAsync();
+    }
+
+    private async Task ApproveSpeaker(int id)
+    {
+        var success = await AdminService.ApproveSpeakerAsync(id);
+        if (success)
+        {
+            await LoadData();
+        }
+    }
+}

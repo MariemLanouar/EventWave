@@ -1,0 +1,37 @@
+@page "/admin/dashboard"
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Admin Dashboard</PageTitle>
+
+<div class="container mt-4">
+    <h2>Admin Dashboard</h2>
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Manage Speakers</h5>
+                    <p class="card-text">Approve and manage speakers.</p>
+                    <a href="admin/speakers" class="btn btn-primary">Go to Speakers</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Manage Organizers</h5>
+                    <p class="card-text">Add and manage organizers.</p>
+                    <a href="admin/organizers" class="btn btn-primary">Go to Organizers</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Manage Venues</h5>
+                    <p class="card-text">Add and manage venues.</p>
+                    <a href="admin/venues" class="btn btn-primary">Go to Venues</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

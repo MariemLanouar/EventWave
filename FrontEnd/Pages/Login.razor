@@ -1,31 +1,66 @@
-﻿@page "/login"
+@page "/login"
 @inject FrontEnd.Services.AuthService AuthService
+@inject NavigationManager NavigationManager
 @using FrontEnd.DTOs
 
-<h3>Login</h3>
+<PageTitle>Login</PageTitle>
 
-<input @bind="model.Email" placeholder="Email" />
-<input type="password" @bind="model.Password" placeholder="Password" />
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Login</h3>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="@model" OnValidSubmit="HandleLogin">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
 
-<button @onclick="login">Login</button>
-
-<p>@message</p>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email address</label>
+                            <InputText id="email" class="form-control" @bind-Value="model.Email" placeholder="Enter email" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <InputText type="password" id="password" class="form-control" @bind-Value="model.Password" placeholder="Password" />
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </div>
+                    </EditForm>
+                    
+                    @if (!string.IsNullOrEmpty(message))
+                    {
+                        <div class="alert alert-danger mt-3" role="alert">
+                            @message
+                        </div>
+                    }
+                </div>
+                <div class="card-footer text-center">
+                    <small>Don't have an account? <a href="register">Register here</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
     LoginDTO model = new();
-    string message;
+    string message = string.Empty;
 
-    private async Task login()
+    private async Task HandleLogin()
     {
         var token = await AuthService.LoginAsync(model);
 
         if (token == null)
         {
-            message = "Invalid credentials";
+            message = "Invalid email or password.";
             return;
         }
 
-        // for now just confirm it works
-        message = "Login successful";
+        // Token is stored in AuthService (we need to implement that part)
+        // Redirect to home
+        NavigationManager.NavigateTo("/");
     }
 }

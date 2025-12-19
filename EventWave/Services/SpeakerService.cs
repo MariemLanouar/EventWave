@@ -1,4 +1,4 @@
-﻿using EventWave.DTOs;
+using EventWave.DTOs;
 using EventWave.Models;
 using EventWave.Repositories;
 
@@ -21,6 +21,11 @@ namespace EventWave.Services
         public async Task<List<Speaker>> GetAllSpeakersAsync()
         {
             return await speakerRepository.GetAllAsync();
+        }
+
+        public async Task<List<Speaker>> GetAllSpeakersIncludingPendingAsync()
+        {
+            return await speakerRepository.GetAllIncludingPendingAsync();
         }
 
         public async Task<Speaker?> GetSpeakerByIdAsync(int id)

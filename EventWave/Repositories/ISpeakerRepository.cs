@@ -1,4 +1,4 @@
-﻿using EventWave.DTOs;
+using EventWave.DTOs;
 using EventWave.Models;
 
 namespace EventWave.Repositories
@@ -7,6 +7,7 @@ namespace EventWave.Repositories
     {
         Task<Speaker> AddAsync(Speaker speaker);
         Task<List<Speaker>> GetAllAsync();
+        Task<List<Speaker>> GetAllIncludingPendingAsync();
         Task<Speaker?> GetByIdAsync(int id);
         Task<Speaker> UpdateAsync(Speaker speaker);
         Task<bool> DeleteAsync(int id);

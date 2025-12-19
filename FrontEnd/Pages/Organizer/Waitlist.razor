@@ -1,0 +1,106 @@
+@page "/organizer/waitlist"
+@using FrontEnd.DTOs
+@using FrontEnd.Services
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Organizer")]
+@inject EventService EventService
+
+<div class="container mt-4">
+    <h3>Waitlist Management</h3>
+
+    <div class="mb-3">
+        <label class="form-label">Select Event</label>
+        <select class="form-select" @onchange="OnEventSelected">
+            <option value="0">-- Select Event --</option>
+            @if (myEvents != null)
+            {
+                foreach (var evt in myEvents)
+                {
+                    <option value="@evt.Id">@evt.Title</option>
+                }
+            }
+        </select>
+    </div>
+
+    @if (waitlistEntries != null && waitlistEntries.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Ticket Type</th>
+                    <th>Count</th>
+                    <th>Joined At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var entry in waitlistEntries)
+                {
+                    <tr>
+                        <td>@entry.UserName</td>
+                        <td>@entry.UserEmail</td>
+                        <td>@entry.TicketType</td>
+                        <td>@entry.TicketCount</td>
+                        <td>@entry.JoinedAt.ToString("g")</td>
+                        <td>
+                            <button class="btn btn-success btn-sm me-2" @onclick="() => Approve(entry.Id)">Approve</button>
+                            <button class="btn btn-danger btn-sm" @onclick="() => Reject(entry.Id)">Reject</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else if (selectedEventId > 0)
+    {
+        <p>No one on the waitlist for this event.</p>
+    }
+</div>
+
+@code {
+    private List<EventResponseDTO>? myEvents;
+    private List<WaitlistDTO>? waitlistEntries;
+    private int selectedEventId = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        myEvents = await EventService.GetMyEventsAsync();
+    }
+
+    private async Task OnEventSelected(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int eventId) && eventId > 0)
+        {
+            selectedEventId = eventId;
+            await LoadWaitlist(eventId);
+        }
+        else
+        {
+            selectedEventId = 0;
+            waitlistEntries = null;
+        }
+    }
+
+    private async Task LoadWaitlist(int eventId)
+    {
+        waitlistEntries = await EventService.GetWaitlistAsync(eventId);
+    }
+
+    private async Task Approve(int id)
+    {
+        if (await EventService.ApproveWaitlistAsync(id))
+        {
+            await LoadWaitlist(selectedEventId);
+        }
+    }
+
+    private async Task Reject(int id)
+    {
+        if (await EventService.RejectWaitlistAsync(id))
+        {
+            await LoadWaitlist(selectedEventId);
+        }
+    }
+}

@@ -1,24 +1,73 @@
-﻿@page "/register"
+@page "/register"
 @inject FrontEnd.Services.AuthService AuthService
+@inject NavigationManager NavigationManager
 @using FrontEnd.DTOs
 
-<h3>Register</h3>
+<PageTitle>Register</PageTitle>
 
-<input @bind="model.FullName" placeholder="Full name" />
-<input @bind="model.Email" placeholder="Email" />
-<input type="password" @bind="model.Password" placeholder="Password" />
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Register</h3>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="@model" OnValidSubmit="HandleRegister">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
 
-<button @onclick="register">Register</button>
+                        <div class="mb-3">
+                            <label for="fullname" class="form-label">Full Name</label>
+                            <InputText id="fullname" class="form-control" @bind-Value="model.FullName" placeholder="Enter full name" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email address</label>
+                            <InputText id="email" class="form-control" @bind-Value="model.Email" placeholder="Enter email" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <InputText type="password" id="password" class="form-control" @bind-Value="model.Password" placeholder="Password" />
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">Register</button>
+                        </div>
+                    </EditForm>
 
-<p>@message</p>
+                    @if (!string.IsNullOrEmpty(message))
+                    {
+                        <div class="alert @alertClass mt-3" role="alert">
+                            @message
+                        </div>
+                    }
+                </div>
+                <div class="card-footer text-center">
+                    <small>Already have an account? <a href="login">Login here</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
     RegisterDTO model = new();
-    string message;
+    string message = string.Empty;
+    string alertClass = "alert-danger";
 
-    private async Task register()
+    private async Task HandleRegister()
     {
         var success = await AuthService.RegisterAsync(model);
-        message = success ? "Registered successfully" : "Registration failed";
+        if (success)
+        {
+            message = "Registration successful! Redirecting to login...";
+            alertClass = "alert-success";
+            await Task.Delay(2000);
+            NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            message = "Registration failed. Please try again.";
+            alertClass = "alert-danger";
+        }
     }
 }

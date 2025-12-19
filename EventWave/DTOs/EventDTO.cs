@@ -1,10 +1,11 @@
-﻿using EventWave.Models;
+using EventWave.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace EventWave.DTOs
 {
     public class EventDTO
     {
+        [Required]
         public string Title { get; set; }
         public string Description { get; set; }
 
@@ -17,12 +18,7 @@ namespace EventWave.DTOs
         public string Category { get; set; }
         public int VenueId { get; set; }
         public EventStatus Status { get; set; } = EventStatus.Draft;
-        public int? Capacity { get; set; }
         public string ImageUrl { get; set; }
-        public List<TicketTypeCapacity> TicketCapacities { get; set; }
-        public List<Registration> Registrations { get; set; }
-
-        public List<Speaker> Speakers { get; set; }
-
+        public List<TicketCapacityDTO> TicketCapacities { get; set; }
     }
 }

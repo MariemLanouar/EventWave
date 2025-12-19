@@ -1,4 +1,4 @@
-﻿using EventWave.DTOs;
+using EventWave.DTOs;
 using EventWave.Models;
 
 namespace EventWave.Repositories
@@ -7,6 +7,7 @@ namespace EventWave.Repositories
     {
 
         Task<object?> GetRegistrations();
+        Task<object?> GetRegistrationsByUser(string userId);
         Task<object?> GetRegistration(int id);
         Task<object> AddRegistration(RegistrationDTO dto);
         Task<string> DeleteRegistration(int id);

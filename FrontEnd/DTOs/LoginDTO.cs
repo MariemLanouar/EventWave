@@ -1,8 +1,14 @@
-﻿namespace FrontEnd.DTOs
+using System.ComponentModel.DataAnnotations;
+
+namespace FrontEnd.DTOs
 {
     public class LoginDTO
     {
-        public string Email { get; set; }
-        public string Password { get; set; }
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Password is required.")]
+        public string Password { get; set; } = string.Empty;
     }
 }

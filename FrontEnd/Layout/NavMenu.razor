@@ -1,4 +1,4 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">FrontEnd</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -15,15 +15,104 @@
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            <NavLink class="nav-link" href="events">
+                <span class="bi bi-calendar-event-fill-nav-menu" aria-hidden="true"></span> Events
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
+
+        <AuthorizeView>
+            <NotAuthorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="login">
+                        <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> Login
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="register">
+                        <span class="bi bi-person-plus-fill-nav-menu" aria-hidden="true"></span> Register
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+            <Authorized>
+                <AuthorizeView Roles="Client" Context="clientContext">
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="client/my-tickets">
+                            <span class="bi bi-ticket-perforated-fill-nav-menu" aria-hidden="true"></span> My Tickets
+                        </NavLink>
+                    </div>
+                     <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="client/profile">
+                            <span class="bi bi-person-circle-nav-menu" aria-hidden="true"></span> My Profile
+                        </NavLink>
+                    </div>
+                </AuthorizeView>
+
+                <AuthorizeView Roles="Organizer" Context="organizerContext">
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="organizer/dashboard">
+                            <span class="bi bi-speedometer2-nav-menu" aria-hidden="true"></span> Dashboard
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="create-event">
+                            <span class="bi bi-plus-circle-fill-nav-menu" aria-hidden="true"></span> Create Event
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="organizer/all-events">
+                            <span class="bi bi-calendar3-nav-menu" aria-hidden="true"></span> All Events
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="organizer/all-speakers">
+                            <span class="bi bi-people-nav-menu" aria-hidden="true"></span> All Speakers
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="organizer/add-speaker">
+                            <span class="bi bi-person-plus-fill-nav-menu" aria-hidden="true"></span> Add Speaker
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="organizer/waitlist">
+                            <span class="bi bi-list-check-nav-menu" aria-hidden="true"></span> Waitlist
+                        </NavLink>
+                    </div>
+                </AuthorizeView>
+
+                <AuthorizeView Roles="Admin" Context="adminContext">
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="admin/dashboard">
+                            <span class="bi bi-speedometer-nav-menu" aria-hidden="true"></span> Dashboard
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="admin/speakers">
+                            <span class="bi bi-mic-fill-nav-menu" aria-hidden="true"></span> Speakers
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="admin/organizers">
+                            <span class="bi bi-people-fill-nav-menu" aria-hidden="true"></span> Organizers
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="admin/venues">
+                            <span class="bi bi-building-nav-menu" aria-hidden="true"></span> Venues
+                        </NavLink>
+                    </div>
+                </AuthorizeView>
+
+                <div class="nav-item px-3">
+                    <!-- removed duplicate general profile link to avoid route ambiguity -->
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="logout">
+                        <span class="bi bi-box-arrow-right-nav-menu" aria-hidden="true"></span> Logout
+                    </NavLink>
+                </div>
+            </Authorized>
+        </AuthorizeView>
     </nav>
 </div>
 

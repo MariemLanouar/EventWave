@@ -1,0 +1,59 @@
+@page "/admin/add-venue"
+@using FrontEnd.DTOs
+@using FrontEnd.Services
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@inject EventService EventService
+@inject NavigationManager NavigationManager
+
+<div class="container mt-4">
+    <h3>Add New Venue</h3>
+    <div class="row">
+        <div class="col-md-6">
+            <EditForm Model="@venue" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <InputText class="form-control" @bind-Value="venue.Name" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Address</label>
+                    <InputText class="form-control" @bind-Value="venue.Address" />
+                </div>
+
+                 <div class="mb-3">
+                    <label class="form-label">City</label>
+                    <InputText class="form-control" @bind-Value="venue.City" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Capacity</label>
+                    <InputNumber class="form-control" @bind-Value="venue.Capacity" />
+                </div>
+
+                <button type="submit" class="btn btn-primary">Add Venue</button>
+                <a href="admin/dashboard" class="btn btn-secondary">Cancel</a>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    private VenueDTO venue = new();
+
+    private async Task HandleSubmit()
+    {
+        var success = await EventService.AddVenueAsync(venue);
+        if (success)
+        {
+            NavigationManager.NavigateTo("admin/dashboard");
+        }
+        else
+        {
+            // Handle error
+        }
+    }
+}

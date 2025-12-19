@@ -1,4 +1,4 @@
-﻿
+
 using EventWave.DTOs;
 using EventWave.Models;
 using EventWave.Repositories;
@@ -20,6 +20,11 @@ namespace EventWave.Services
         public async Task<object> GetRegistrationsAsync()
         {
             return await _repository.GetRegistrations();
+        }
+
+        public async Task<object?> GetRegistrationsByUserAsync(string userId)
+        {
+            return await _repository.GetRegistrationsByUser(userId);
         }
 
         public async Task<object?> GetRegistrationAsync(int id)

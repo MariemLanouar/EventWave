@@ -1,4 +1,4 @@
-﻿using EventWave.DTOs;
+using EventWave.DTOs;
 using EventWave.Models;
 using System.Threading.Tasks;
 
@@ -7,9 +7,10 @@ namespace EventWave.Repositories
     public interface IEventRepository
     {
         public  Task<Event> AddAsync(Event evt);
-        public  Task<Event> GetByIdAsync(int id);
-        public Task<List<Event>> GetAllAsync();
-        Task<Event> UpdateAsync(Event evt);
+        Task<IEnumerable<Event>> GetAllAsync();
+        Task<IEnumerable<Event>> GetByOrganizerAsync(string organizerId);
+        Task<Event?> GetByIdAsync(int id);
+        Task<Event?> UpdateAsync(Event evt);
         Task<bool> DeleteEventAsync(int eventId);
         Task<List<Event>> GlobalSearchAsync(string keyword);
         Task<List<Event>> AdvancedSearchAsync(

@@ -1,0 +1,151 @@
+@page "/create-event"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Organizer")]
+@inject FrontEnd.Services.EventService EventService
+@inject NavigationManager NavigationManager
+@using FrontEnd.DTOs
+@using FrontEnd.Models
+
+<PageTitle>Create Event</PageTitle>
+
+<div class="container mt-4">
+    <h2>Create New Event</h2>
+
+    <EditForm Model="@model" OnValidSubmit="HandleCreate">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Title</label>
+            <InputText class="form-control" @bind-Value="model.Title" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <InputTextArea class="form-control" @bind-Value="model.Description" />
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Start Date</label>
+                <InputDate Type="InputDateType.DateTimeLocal" class="form-control" @bind-Value="model.Start" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">End Date</label>
+                <InputDate Type="InputDateType.DateTimeLocal" class="form-control" @bind-Value="model.End" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Category</label>
+            <InputText class="form-control" @bind-Value="model.Category" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Image URL</label>
+            <InputText class="form-control" @bind-Value="model.ImageUrl" />
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Venue</label>
+                <InputSelect class="form-select" @bind-Value="model.VenueId">
+                    <option value="0">Select Venue</option>
+                    @if (venues != null)
+                    {
+                        foreach (var v in venues)
+                        {
+                            <option value="@v.Id">@v.Name (@v.City)</option>
+                        }
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Speaker</label>
+                <InputSelect class="form-select" @bind-Value="model.SpeakerId">
+                    <option value="0">Select Speaker</option>
+                    @if (speakers != null)
+                    {
+                        foreach (var s in speakers)
+                        {
+                            <option value="@s.Id">@s.Name</option>
+                        }
+                    }
+                </InputSelect>
+            </div>
+        </div>
+
+        <h4>Tickets</h4>
+        <div class="mb-3">
+            <button type="button" class="btn btn-secondary btn-sm" @onclick="AddTicketType">Add Ticket Type</button>
+        </div>
+
+        @foreach (var ticket in model.TicketCapacities)
+        {
+            <div class="row mb-2 border p-2 rounded">
+                <div class="col-md-4">
+                    <label class="form-label">Type</label>
+                    <InputSelect class="form-select" @bind-Value="ticket.TicketType">
+                        @foreach (var type in Enum.GetValues<TicketType>())
+                        {
+                            <option value="@type">@type</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Capacity</label>
+                    <InputNumber class="form-control" @bind-Value="ticket.Capacity" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Price</label>
+                    <InputNumber class="form-control" @bind-Value="ticket.Price" />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                     <button type="button" class="btn btn-danger btn-sm" @onclick="() => RemoveTicketType(ticket)">Remove</button>
+                </div>
+            </div>
+        }
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Create Event</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    EventDTO model = new() { Start = DateTime.Now, End = DateTime.Now.AddHours(2) };
+    List<VenueDTO>? venues;
+    List<SpeakerDTO>? speakers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        venues = await EventService.GetVenuesAsync();
+        speakers = await EventService.GetAllSpeakersAsync();
+    }
+
+    private void AddTicketType()
+    {
+        model.TicketCapacities.Add(new TicketCapacityDTO { TicketType = TicketType.Regular, Capacity = 100, Price = 0 });
+    }
+
+    private void RemoveTicketType(TicketCapacityDTO ticket)
+    {
+        model.TicketCapacities.Remove(ticket);
+    }
+
+    private async Task HandleCreate()
+    {
+        // OrganizerId is handled by backend from Token claims
+        model.OrganizerId = string.Empty; 
+
+        var success = await EventService.CreateEventAsync(model);
+        if (success)
+        {
+            NavigationManager.NavigateTo("/profile");
+        }
+        else
+        {
+            // Show error
+        }
+    }
+}
