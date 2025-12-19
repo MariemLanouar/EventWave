@@ -4,6 +4,7 @@ using EventWave.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventWave.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20251218135016_ignore")]
+    partial class ignore
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -539,7 +542,7 @@ namespace EventWave.Migrations
             modelBuilder.Entity("EventWave.Models.Profile", b =>
                 {
                     b.HasOne("EventWave.Models.User", "User")
-                        .WithOne("Profile")
+                        .WithOne()
                         .HasForeignKey("EventWave.Models.Profile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -682,12 +685,6 @@ namespace EventWave.Migrations
             modelBuilder.Entity("EventWave.Models.Registration", b =>
                 {
                     b.Navigation("Tickets");
-                });
-
-            modelBuilder.Entity("EventWave.Models.User", b =>
-                {
-                    b.Navigation("Profile")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("EventWave.Models.Venue", b =>

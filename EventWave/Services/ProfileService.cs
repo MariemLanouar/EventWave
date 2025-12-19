@@ -68,5 +68,10 @@ namespace EventWave.Services
 
             await _profileRepo.UpdateAsync(profile);
         }
+        public async Task CreateProfileInternalAsync(Profile profile)
+        {
+            await _profileRepo.CreateAsync(profile);
+        }
+
     }
 }

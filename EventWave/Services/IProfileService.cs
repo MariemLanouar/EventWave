@@ -1,4 +1,5 @@
 ﻿using EventWave.DTOs;
+using EventWave.Models;
 
 namespace EventWave.Services
 {
@@ -7,5 +8,7 @@ namespace EventWave.Services
         Task<ProfileResponseDTO?> GetMyProfileAsync(string userId);
         Task CreateProfileAsync(string userId, ProfileDTO dto);
         Task UpdateProfileAsync(string userId, ProfileDTO dto);
+        Task CreateProfileInternalAsync(Profile profile);
+
     }
 }

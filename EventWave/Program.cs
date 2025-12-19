@@ -76,6 +76,9 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
 builder.Services.AddScoped<IWaitListRepository,WaitListRepository>();
 builder.Services.AddScoped<IWaitListService, WaitListService>();
+builder.Services.AddScoped<IVenueRepository, VenueRepository>();
+builder.Services.AddScoped<IVenueService, VenueService>();
+
 
 
 builder.Services.AddControllers();
@@ -110,6 +113,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
+
+app.UseCors("AllowAll");
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 

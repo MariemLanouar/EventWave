@@ -30,6 +30,9 @@ namespace EventWave.Repositories
             return await _context.Events
                 .Include(e => e.Speaker)
                 .Include(e => e.Venue)
+                .Include(e => e.TicketCapacities)        // Ajoutez ceci
+                .Include(e => e.Registrations)           // Ajoutez ceci
+                 .Include(e => e.Speakers)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 
